@@ -12,6 +12,7 @@ interface FakeContext {
   translate: ReturnType<typeof vi.fn>;
   rotate: ReturnType<typeof vi.fn>;
   scale: ReturnType<typeof vi.fn>;
+  filter: string;
 }
 
 describe('flattenOperations', () => {
@@ -25,6 +26,7 @@ describe('flattenOperations', () => {
         translate: vi.fn(),
         rotate: vi.fn(),
         scale: vi.fn(),
+        filter: 'none',
       };
       contexts.push(context);
       return context as unknown as CanvasRenderingContext2D;
@@ -89,5 +91,17 @@ describe('flattenOperations', () => {
     const secondCallArg = secondContext?.drawImage.mock.calls[0]?.[0];
     expect(secondCallArg).not.toBe(source);
     expect(secondCallArg).toBeInstanceOf(HTMLCanvasElement);
+  });
+
+  it('applies a colour adjustment via the canvas filter, leaving size unchanged', () => {
+    const source = fakeSource(100, 80);
+    const operations: ImageOperation[] = [{ type: 'brightness', value: 20 }];
+
+    const result = flattenOperations(source, operations) as HTMLCanvasElement;
+
+    expect(result.width).toBe(100);
+    expect(result.height).toBe(80);
+    expect(contexts[0]?.filter).toBe('brightness(1.2)');
+    expect(contexts[0]?.drawImage).toHaveBeenCalledWith(source, 0, 0);
   });
 });

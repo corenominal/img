@@ -1,5 +1,6 @@
 import type { ImageOperation } from '../operations/ImageOperation';
 import { applyGeometricTransform, applyOperationToSize } from '../operations/ImageOperation';
+import { applyAdjustmentFilter, isAdjustmentOperation } from '../operations/AdjustmentOperation';
 import type { Size } from '../viewport/viewportTypes';
 
 export type RenderableSource = ImageBitmap | HTMLCanvasElement;
@@ -31,7 +32,10 @@ function get2dContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
 // onto isolated canvases sidesteps that entirely, and also gives export
 // (a later phase) the same single source of truth for "what does the
 // current document actually look like".
-export function flattenOperations(source: ImageBitmap, operations: ImageOperation[]): RenderableSource {
+export function flattenOperations(
+  source: ImageBitmap,
+  operations: ImageOperation[],
+): RenderableSource {
   let current: RenderableSource = source;
   let currentSize: Size = { width: source.width, height: source.height };
 
@@ -52,6 +56,9 @@ export function flattenOperations(source: ImageBitmap, operations: ImageOperatio
         operation.width,
         operation.height,
       );
+    } else if (isAdjustmentOperation(operation)) {
+      applyAdjustmentFilter(context, operation);
+      context.drawImage(current, 0, 0);
     } else {
       applyGeometricTransform(context, operation, currentSize);
       context.drawImage(current, 0, 0);

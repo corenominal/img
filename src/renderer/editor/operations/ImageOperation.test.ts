@@ -21,6 +21,13 @@ describe('applyOperationToSize', () => {
       applyOperationToSize({ width: 200, height: 100 }, { type: 'crop', x: 10, y: 10, width: 50, height: 40 }),
     ).toEqual({ width: 50, height: 40 });
   });
+
+  it('applies a colour adjustment operation (no size change)', () => {
+    expect(applyOperationToSize({ width: 200, height: 100 }, { type: 'brightness', value: 20 })).toEqual({
+      width: 200,
+      height: 100,
+    });
+  });
 });
 
 describe('applyGeometricTransform', () => {

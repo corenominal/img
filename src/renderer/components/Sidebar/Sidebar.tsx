@@ -1,6 +1,7 @@
 import { useEditorStore } from '../../stores/editorStore';
 import { useDocumentStore } from '../../stores/documentStore';
 import { CropPanel } from './CropPanel';
+import { AdjustPanel } from './AdjustPanel';
 import './Sidebar.css';
 
 export function Sidebar(): React.JSX.Element {
@@ -11,6 +12,14 @@ export function Sidebar(): React.JSX.Element {
     return (
       <aside className="sidebar" aria-label="Crop">
         <CropPanel />
+      </aside>
+    );
+  }
+
+  if (hasDocument) {
+    return (
+      <aside className="sidebar" aria-label="Adjustments">
+        <AdjustPanel />
       </aside>
     );
   }

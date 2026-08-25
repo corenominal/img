@@ -25,4 +25,16 @@ describe('getOperationLabel', () => {
   it('labels a crop', () => {
     expect(getOperationLabel({ type: 'crop', x: 0, y: 0, width: 10, height: 10 })).toBe('Crop');
   });
+
+  it('labels a brightness adjustment', () => {
+    expect(getOperationLabel({ type: 'brightness', value: 20 })).toBe('Brightness');
+  });
+
+  it('labels a contrast adjustment', () => {
+    expect(getOperationLabel({ type: 'contrast', value: -10 })).toBe('Contrast');
+  });
+
+  it('labels a saturation adjustment', () => {
+    expect(getOperationLabel({ type: 'saturation', value: 5 })).toBe('Saturation');
+  });
 });

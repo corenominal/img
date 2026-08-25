@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useRef } from 'react';
 import type { ImageDocument } from '../../editor/document/documentTypes';
+import type { AdjustmentKind } from '../../editor/operations/AdjustmentOperation';
+import { getAdjustmentTotal } from '../../editor/operations/adjustmentTotals';
+import type { ImageOperation } from '../../editor/operations/ImageOperation';
 import { renderToCanvas } from '../../editor/rendering/CanvasRenderer';
 import { flattenOperations } from '../../editor/rendering/flattenOperations';
 import { ZOOM_STEP_FACTOR } from '../../editor/viewport/viewportMath';
 import { useResizeObserver } from '../../hooks/useResizeObserver';
 import { useViewportInteractions } from '../../hooks/useViewportInteractions';
+import { useAdjustmentStore } from '../../stores/adjustmentStore';
 import { useEditorStore } from '../../stores/editorStore';
 import { useViewportStore } from '../../stores/viewportStore';
 
@@ -57,7 +61,14 @@ export function ImageCanvas({ document: activeDocument }: ImageCanvasProps): Rea
     }
 
     lastFitted.current = { id: activeDocument.id, ...imageSize };
-  }, [activeDocument.id, activeDocument.width, activeDocument.height, containerSize, fitToContainer, centerImage]);
+  }, [
+    activeDocument.id,
+    activeDocument.width,
+    activeDocument.height,
+    containerSize,
+    fitToContainer,
+    centerImage,
+  ]);
 
   useEffect(() => {
     return window.imageEditor.onViewportActionRequested((action) => {
@@ -92,18 +103,48 @@ export function ImageCanvas({ document: activeDocument }: ImageCanvasProps): Rea
     activeDocument.height,
   ]);
 
-  // Only re-flatten when the source bitmap or operation stack actually
-  // change (not on every pan/zoom re-render, which would redo this work on
-  // every pointermove frame).
+  // While a slider gesture is in progress, the adjustment store holds the
+  // absolute value it's currently showing, which hasn't been committed to
+  // document history yet (see useAdjustmentActions.ts). The delta between
+  // that and the committed total is what actually needs previewing on top
+  // of the flattened document, at the cost of re-flattening on every
+  // slider tick — acceptable for now per plan.md §13 (profile before
+  // optimising).
+  const activeAdjustments = useAdjustmentStore((state) => state.active);
+  const previewOperations = useMemo(() => {
+    const ops: ImageOperation[] = [];
+    for (const kind of Object.keys(activeAdjustments) as AdjustmentKind[]) {
+      const targetValue = activeAdjustments[kind];
+      if (targetValue === undefined) {
+        continue;
+      }
+      const delta = targetValue - getAdjustmentTotal(activeDocument.operations, kind);
+      if (delta !== 0) {
+        ops.push({ type: kind, value: delta });
+      }
+    }
+    return ops;
+  }, [activeAdjustments, activeDocument.operations]);
+
   const flattenedSource = useMemo(
-    () => flattenOperations(activeDocument.source, activeDocument.operations),
-    [activeDocument.source, activeDocument.operations],
+    () =>
+      flattenOperations(activeDocument.source, [
+        ...activeDocument.operations,
+        ...previewOperations,
+      ]),
+    [activeDocument.source, activeDocument.operations, previewOperations],
   );
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas && containerSize.width > 0 && containerSize.height > 0) {
-      renderToCanvas(canvas, flattenedSource, { zoom, offsetX, offsetY }, containerSize, getDevicePixelRatio());
+      renderToCanvas(
+        canvas,
+        flattenedSource,
+        { zoom, offsetX, offsetY },
+        containerSize,
+        getDevicePixelRatio(),
+      );
     }
   }, [flattenedSource, zoom, offsetX, offsetY, containerSize]);
 

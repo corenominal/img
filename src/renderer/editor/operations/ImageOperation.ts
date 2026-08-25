@@ -5,12 +5,15 @@ import type { FlipOperation } from './FlipOperation';
 import { applyFlipTransform, flipSize } from './FlipOperation';
 import type { CropOperation } from './CropOperation';
 import { cropSize } from './CropOperation';
+import type { AdjustmentOperation } from './AdjustmentOperation';
+import { adjustmentSize } from './AdjustmentOperation';
 
 export type { RotateOperation } from './RotateOperation';
 export type { FlipOperation } from './FlipOperation';
 export type { CropOperation } from './CropOperation';
+export type { AdjustmentOperation, AdjustmentKind } from './AdjustmentOperation';
 
-export type ImageOperation = RotateOperation | FlipOperation | CropOperation;
+export type ImageOperation = RotateOperation | FlipOperation | CropOperation | AdjustmentOperation;
 
 export function assertExhaustive(value: never): never {
   throw new Error(`Unhandled image operation: ${JSON.stringify(value)}`);
@@ -24,16 +27,20 @@ export function applyOperationToSize(size: Size, operation: ImageOperation): Siz
       return flipSize(size);
     case 'crop':
       return cropSize(operation);
+    case 'brightness':
+    case 'contrast':
+    case 'saturation':
+      return adjustmentSize(size);
     default:
       return assertExhaustive(operation);
   }
 }
 
 // Rotate/flip are pure canvas transforms applied to a full drawImage(source,
-// 0, 0) call. Crop is deliberately excluded: it needs to control the
-// drawImage call itself (a cropping source-rect), not just pre-apply a
-// transform — see flattenOperations.ts for why crop can't share a single
-// composed transform with the other operations.
+// 0, 0) call. Crop and the colour adjustments are deliberately excluded:
+// crop needs to control the drawImage call itself (a cropping source-rect)
+// rather than pre-apply a transform, and adjustments apply a canvas
+// `filter` instead of a transform — see flattenOperations.ts.
 export function applyGeometricTransform(
   context: CanvasRenderingContext2D,
   operation: RotateOperation | FlipOperation,
