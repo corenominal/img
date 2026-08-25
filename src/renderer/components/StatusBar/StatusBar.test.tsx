@@ -1,9 +1,23 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { StatusBar } from './StatusBar';
 import { usePreferenceStore } from '../../stores/preferenceStore';
 import { useDocumentStore } from '../../stores/documentStore';
+import type { ImageDocument } from '../../editor/document/documentTypes';
+
+function fakeDocument(width: number, height: number): ImageDocument {
+  return {
+    id: 'doc-1',
+    filename: 'photo.png',
+    sourcePath: '/tmp/photo.png',
+    width,
+    height,
+    source: { width, height, close: vi.fn() } as unknown as ImageBitmap,
+    operations: [],
+    dirty: false,
+  };
+}
 
 describe('StatusBar', () => {
   afterEach(() => {
@@ -17,7 +31,7 @@ describe('StatusBar', () => {
   });
 
   it('shows document dimensions when a document is open', () => {
-    useDocumentStore.setState({ document: { width: 4000, height: 3000 } });
+    useDocumentStore.setState({ document: fakeDocument(4000, 3000) });
     render(<StatusBar />);
     expect(screen.getByText('4000 × 3000')).toBeInTheDocument();
   });

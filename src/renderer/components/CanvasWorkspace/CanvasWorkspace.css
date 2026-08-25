@@ -1,11 +1,50 @@
 .canvas-workspace {
   grid-area: canvas;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 0;
   min-height: 0;
+  padding: 16px;
   background: var(--color-canvas-bg);
+}
+
+.image-canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+}
+
+.canvas-workspace__error {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 80%;
+  padding: 8px 12px;
+  background: #b3261e;
+  color: #ffffff;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.canvas-workspace__error p {
+  margin: 0;
+}
+
+.canvas-workspace__error-dismiss {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .canvas-workspace__empty {

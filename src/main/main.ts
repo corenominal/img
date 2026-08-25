@@ -2,6 +2,7 @@ import { app, BrowserWindow, Menu } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { buildApplicationMenu } from './menu/applicationMenu';
+import { registerIpcHandlers } from './ipc/registerHandlers';
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined;
 declare const MAIN_WINDOW_VITE_NAME: string;
@@ -35,6 +36,7 @@ const createMainWindow = (): BrowserWindow => {
 };
 
 app.on('ready', () => {
+  registerIpcHandlers();
   Menu.setApplicationMenu(buildApplicationMenu());
   createMainWindow();
 });

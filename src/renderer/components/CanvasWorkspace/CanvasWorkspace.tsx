@@ -1,19 +1,43 @@
+import { useDocumentStore } from '../../stores/documentStore';
+import { useOpenImage } from '../../hooks/useOpenImage';
+import { ImageCanvas } from './ImageCanvas';
 import './CanvasWorkspace.css';
 
-function handleOpenImage(): void {
-  // File > Open is implemented in a later phase (native dialog + IPC).
-  console.info('Open Image requested — not yet implemented.');
-}
-
 export function CanvasWorkspace(): React.JSX.Element {
+  const activeDocument = useDocumentStore((state) => state.document);
+  const openError = useDocumentStore((state) => state.openError);
+  const setOpenError = useDocumentStore((state) => state.setOpenError);
+  const openImage = useOpenImage();
+
   return (
     <div className="canvas-workspace">
-      <div className="canvas-workspace__empty">
-        <p className="canvas-workspace__title">No image open</p>
-        <button type="button" className="canvas-workspace__open-button" onClick={handleOpenImage}>
-          Open Image
-        </button>
-      </div>
+      {openError && (
+        <div role="alert" className="canvas-workspace__error">
+          <p>{openError}</p>
+          <button
+            type="button"
+            className="canvas-workspace__error-dismiss"
+            aria-label="Dismiss error"
+            onClick={() => setOpenError(null)}
+          >
+            ×
+          </button>
+        </div>
+      )}
+      {activeDocument ? (
+        <ImageCanvas document={activeDocument} />
+      ) : (
+        <div className="canvas-workspace__empty">
+          <p className="canvas-workspace__title">No image open</p>
+          <button
+            type="button"
+            className="canvas-workspace__open-button"
+            onClick={() => void openImage()}
+          >
+            Open Image
+          </button>
+        </div>
+      )}
     </div>
   );
 }

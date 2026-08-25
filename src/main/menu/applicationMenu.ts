@@ -1,5 +1,6 @@
-import { app, dialog, Menu } from 'electron';
+import { app, BrowserWindow, dialog, Menu } from 'electron';
 import type { MenuItemConstructorOptions } from 'electron';
+import { IPC_CHANNELS } from '../../shared/ipc/channels';
 
 const isMac = process.platform === 'darwin';
 
@@ -23,7 +24,22 @@ function showAboutDialog(): void {
 export function buildApplicationMenu(): Menu {
   const template: MenuItemConstructorOptions[] = [
     ...(isMac ? [{ role: 'appMenu' as const }] : []),
-    { role: 'fileMenu' },
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Open Image…',
+          accelerator: 'CmdOrCtrl+O',
+          click: (_item, window) => {
+            if (window instanceof BrowserWindow) {
+              window.webContents.send(IPC_CHANNELS.menuOpenImageRequested);
+            }
+          },
+        },
+        { type: 'separator' },
+        isMac ? { role: 'close' } : { role: 'quit' },
+      ],
+    },
     { role: 'editMenu' },
     {
       label: 'View',
