@@ -17,6 +17,34 @@ export interface OpenImageError {
 
 export type OpenImageResult = OpenImageSuccess | OpenImageCancelled | OpenImageError;
 
+export type ExportFormat = 'jpeg' | 'png' | 'webp';
+
+export interface ExportImageRequest {
+  format: ExportFormat;
+  // Already-encoded image bytes, produced in the renderer (see
+  // renderExport.ts) — the main process only writes them to disk.
+  data: Uint8Array;
+  // Filename without an extension; the main process appends the one
+  // matching `format`.
+  suggestedFileName: string;
+}
+
+export interface ExportImageSuccess {
+  status: 'exported';
+  filePath: string;
+}
+
+export interface ExportImageCancelled {
+  status: 'cancelled';
+}
+
+export interface ExportImageError {
+  status: 'error';
+  message: string;
+}
+
+export type ExportImageResult = ExportImageSuccess | ExportImageCancelled | ExportImageError;
+
 export type ViewportMenuAction = 'zoom-in' | 'zoom-out' | 'actual-size' | 'fit-to-window';
 
 export type ImageMenuAction =
@@ -39,7 +67,9 @@ export interface ImageEditorApi {
     electron: string;
   };
   openImage: () => Promise<OpenImageResult>;
+  exportImage: (request: ExportImageRequest) => Promise<ExportImageResult>;
   onOpenImageMenuRequested: (callback: () => void) => () => void;
+  onExportImageMenuRequested: (callback: () => void) => () => void;
   onViewportActionRequested: (callback: (action: ViewportMenuAction) => void) => () => void;
   onImageActionRequested: (callback: (action: ImageMenuAction) => void) => () => void;
   onHistoryActionRequested: (callback: (action: HistoryMenuAction) => void) => () => void;

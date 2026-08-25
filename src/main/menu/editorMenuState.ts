@@ -37,6 +37,7 @@ export function updateEditorMenuState(state: EditorMenuState): void {
     'flip-horizontal',
     'flip-vertical',
     'resize',
+    'export',
   ] as const) {
     const item = menu.getMenuItemById(id);
     if (item) {

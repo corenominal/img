@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useEditorMenuBridge } from './useEditorMenuBridge';
 import { useDocumentStore } from '../stores/documentStore';
 import { useResizeDialogStore } from '../stores/resizeDialogStore';
+import { useExportDialogStore } from '../stores/exportDialogStore';
 import type { ImageDocument } from '../editor/document/documentTypes';
 
 function fakeDocument(): ImageDocument {
@@ -27,6 +28,7 @@ describe('useEditorMenuBridge', () => {
   afterEach(() => {
     useDocumentStore.setState({ document: null, history: null, openError: null });
     useResizeDialogStore.setState({ isOpen: false });
+    useExportDialogStore.setState({ isOpen: false });
   });
 
   it('reports no document and nothing to undo/redo initially', () => {
@@ -89,6 +91,19 @@ describe('useEditorMenuBridge', () => {
     act(() => handler('resize'));
 
     expect(useResizeDialogStore.getState().isOpen).toBe(true);
+  });
+
+  it('routes an export menu request to opening the export dialog', () => {
+    render(<Harness />);
+    act(() => useDocumentStore.getState().setDocument(fakeDocument()));
+
+    const onExportImageMenuRequested = window.imageEditor.onExportImageMenuRequested as ReturnType<
+      typeof vi.fn
+    >;
+    const handler = onExportImageMenuRequested.mock.calls[0]?.[0] as () => void;
+    act(() => handler());
+
+    expect(useExportDialogStore.getState().isOpen).toBe(true);
   });
 
   it('routes history menu actions to undo/redo', () => {

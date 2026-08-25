@@ -3,6 +3,7 @@ import { CanvasWorkspace } from '../CanvasWorkspace/CanvasWorkspace';
 import { Sidebar } from '../Sidebar/Sidebar';
 import { StatusBar } from '../StatusBar/StatusBar';
 import { ResizeDialog } from '../Dialogs/ResizeDialog';
+import { ExportDialog } from '../Dialogs/ExportDialog';
 import './AppShell.css';
 
 export function AppShell(): React.JSX.Element {
@@ -13,6 +14,7 @@ export function AppShell(): React.JSX.Element {
       <Sidebar />
       <StatusBar />
       <ResizeDialog />
+      <ExportDialog />
     </div>
   );
 }
