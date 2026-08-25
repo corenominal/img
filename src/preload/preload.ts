@@ -18,6 +18,30 @@ const imageEditorApi: ImageEditorApi = {
       ipcRenderer.removeListener(IPC_CHANNELS.menuOpenImageRequested, listener);
     };
   },
+  onViewportActionRequested: (callback) => {
+    const listener = (_event: unknown, action: Parameters<typeof callback>[0]): void => callback(action);
+    ipcRenderer.on(IPC_CHANNELS.menuViewportAction, listener);
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.menuViewportAction, listener);
+    };
+  },
+  onImageActionRequested: (callback) => {
+    const listener = (_event: unknown, action: Parameters<typeof callback>[0]): void => callback(action);
+    ipcRenderer.on(IPC_CHANNELS.menuImageAction, listener);
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.menuImageAction, listener);
+    };
+  },
+  onHistoryActionRequested: (callback) => {
+    const listener = (_event: unknown, action: Parameters<typeof callback>[0]): void => callback(action);
+    ipcRenderer.on(IPC_CHANNELS.menuHistoryAction, listener);
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.menuHistoryAction, listener);
+    };
+  },
+  notifyEditorState: (state) => {
+    ipcRenderer.send(IPC_CHANNELS.editorStateChanged, state);
+  },
 };
 
 contextBridge.exposeInMainWorld('imageEditor', imageEditorApi);

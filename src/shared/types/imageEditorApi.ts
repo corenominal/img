@@ -17,6 +17,18 @@ export interface OpenImageError {
 
 export type OpenImageResult = OpenImageSuccess | OpenImageCancelled | OpenImageError;
 
+export type ViewportMenuAction = 'zoom-in' | 'zoom-out' | 'actual-size' | 'fit-to-window';
+
+export type ImageMenuAction = 'rotate-left' | 'rotate-right' | 'flip-horizontal' | 'flip-vertical';
+
+export type HistoryMenuAction = 'undo' | 'redo';
+
+export interface EditorMenuState {
+  hasDocument: boolean;
+  canUndo: boolean;
+  canRedo: boolean;
+}
+
 export interface ImageEditorApi {
   getVersions: () => {
     chrome: string;
@@ -25,4 +37,8 @@ export interface ImageEditorApi {
   };
   openImage: () => Promise<OpenImageResult>;
   onOpenImageMenuRequested: (callback: () => void) => () => void;
+  onViewportActionRequested: (callback: (action: ViewportMenuAction) => void) => () => void;
+  onImageActionRequested: (callback: (action: ImageMenuAction) => void) => () => void;
+  onHistoryActionRequested: (callback: (action: HistoryMenuAction) => void) => () => void;
+  notifyEditorState: (state: EditorMenuState) => void;
 }

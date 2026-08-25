@@ -44,19 +44,18 @@ test('opens a PNG and displays it at the correct dimensions', async () => {
 
   const canvas = window.locator('canvas.image-canvas');
   await expect(canvas).toBeVisible();
-  await expect(canvas).toHaveAttribute('width', '320');
-  await expect(canvas).toHaveAttribute('height', '200');
+  await expect(canvas).toHaveAttribute('aria-label', 'test.png, 320 by 200 pixels');
   await expect(window.getByText('320 × 200')).toBeVisible();
 });
 
 test('opens a JPEG, then replaces it with a WebP via the menu', async () => {
   await stubOpenDialog(app, path.join(fixturesDir, 'test.jpg'));
   await window.getByRole('button', { name: 'Open Image' }).click();
-  await expect(window.locator('canvas.image-canvas')).toHaveAttribute('width', '150');
+  await expect(window.getByText('150 × 90')).toBeVisible();
 
   await stubOpenDialog(app, path.join(fixturesDir, 'test.webp'));
   await requestOpenViaMenu(app);
-  await expect(window.locator('canvas.image-canvas')).toHaveAttribute('width', '64');
+  await expect(window.getByText('64 × 64')).toBeVisible();
 });
 
 test('shows a friendly error for a corrupt file instead of crashing', async () => {
