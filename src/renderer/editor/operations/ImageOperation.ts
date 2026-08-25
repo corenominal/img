@@ -7,13 +7,17 @@ import type { CropOperation } from './CropOperation';
 import { cropSize } from './CropOperation';
 import type { AdjustmentOperation } from './AdjustmentOperation';
 import { adjustmentSize } from './AdjustmentOperation';
+import type { ResizeOperation } from './ResizeOperation';
+import { resizeSize } from './ResizeOperation';
 
 export type { RotateOperation } from './RotateOperation';
 export type { FlipOperation } from './FlipOperation';
 export type { CropOperation } from './CropOperation';
 export type { AdjustmentOperation, AdjustmentKind } from './AdjustmentOperation';
+export type { ResizeOperation, ResamplingMethod } from './ResizeOperation';
 
-export type ImageOperation = RotateOperation | FlipOperation | CropOperation | AdjustmentOperation;
+export type ImageOperation =
+  RotateOperation | FlipOperation | CropOperation | AdjustmentOperation | ResizeOperation;
 
 export function assertExhaustive(value: never): never {
   throw new Error(`Unhandled image operation: ${JSON.stringify(value)}`);
@@ -31,16 +35,19 @@ export function applyOperationToSize(size: Size, operation: ImageOperation): Siz
     case 'contrast':
     case 'saturation':
       return adjustmentSize(size);
+    case 'resize':
+      return resizeSize(operation);
     default:
       return assertExhaustive(operation);
   }
 }
 
 // Rotate/flip are pure canvas transforms applied to a full drawImage(source,
-// 0, 0) call. Crop and the colour adjustments are deliberately excluded:
-// crop needs to control the drawImage call itself (a cropping source-rect)
-// rather than pre-apply a transform, and adjustments apply a canvas
-// `filter` instead of a transform — see flattenOperations.ts.
+// 0, 0) call. Crop, the colour adjustments, and resize are deliberately
+// excluded: crop needs to control the drawImage call itself (a cropping
+// source-rect) rather than pre-apply a transform, adjustments apply a
+// canvas `filter` instead of a transform, and resize scales the
+// destination rect of drawImage — see flattenOperations.ts.
 export function applyGeometricTransform(
   context: CanvasRenderingContext2D,
   operation: RotateOperation | FlipOperation,

@@ -37,4 +37,10 @@ describe('getOperationLabel', () => {
   it('labels a saturation adjustment', () => {
     expect(getOperationLabel({ type: 'saturation', value: 5 })).toBe('Saturation');
   });
+
+  it('labels a resize', () => {
+    expect(
+      getOperationLabel({ type: 'resize', width: 400, height: 300, resampling: 'smooth' }),
+    ).toBe('Resize');
+  });
 });

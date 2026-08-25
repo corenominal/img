@@ -31,7 +31,13 @@ export function updateEditorMenuState(state: EditorMenuState): void {
     redoItem.label = state.redoLabel ? `Redo ${state.redoLabel}` : 'Redo';
   }
 
-  for (const id of ['rotate-left', 'rotate-right', 'flip-horizontal', 'flip-vertical'] as const) {
+  for (const id of [
+    'rotate-left',
+    'rotate-right',
+    'flip-horizontal',
+    'flip-vertical',
+    'resize',
+  ] as const) {
     const item = menu.getMenuItemById(id);
     if (item) {
       item.enabled = state.hasDocument;

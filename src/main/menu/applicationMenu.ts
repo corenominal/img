@@ -1,7 +1,11 @@
 import { app, BrowserWindow, dialog, Menu } from 'electron';
 import type { MenuItemConstructorOptions } from 'electron';
 import { IPC_CHANNELS } from '../../shared/ipc/channels';
-import type { HistoryMenuAction, ImageMenuAction, ViewportMenuAction } from '../../shared/types/imageEditorApi';
+import type {
+  HistoryMenuAction,
+  ImageMenuAction,
+  ViewportMenuAction,
+} from '../../shared/types/imageEditorApi';
 
 const isMac = process.platform === 'darwin';
 
@@ -105,6 +109,13 @@ export function buildApplicationMenu(): Menu {
           label: 'Flip Vertical',
           enabled: false,
           click: (_item, window) => sendImageAction(window, 'flip-vertical'),
+        },
+        { type: 'separator' },
+        {
+          id: 'resize',
+          label: 'Resize…',
+          enabled: false,
+          click: (_item, window) => sendImageAction(window, 'resize'),
         },
       ],
     },

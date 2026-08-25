@@ -19,7 +19,8 @@ export type OpenImageResult = OpenImageSuccess | OpenImageCancelled | OpenImageE
 
 export type ViewportMenuAction = 'zoom-in' | 'zoom-out' | 'actual-size' | 'fit-to-window';
 
-export type ImageMenuAction = 'rotate-left' | 'rotate-right' | 'flip-horizontal' | 'flip-vertical';
+export type ImageMenuAction =
+  'rotate-left' | 'rotate-right' | 'flip-horizontal' | 'flip-vertical' | 'resize';
 
 export type HistoryMenuAction = 'undo' | 'redo';
 

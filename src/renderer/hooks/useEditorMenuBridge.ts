@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useOpenImage } from './useOpenImage';
 import { useDocumentStore } from '../stores/documentStore';
+import { useResizeDialogStore } from '../stores/resizeDialogStore';
 import { getRedoLabel, getUndoLabel } from '../editor/document/documentHistoryLabels';
 
 // Bridges the native menu (main process) and the document/history store:
@@ -32,6 +33,9 @@ export function useEditorMenuBridge(): void {
           break;
         case 'flip-vertical':
           applyOperation({ type: 'flip', axis: 'vertical' });
+          break;
+        case 'resize':
+          useResizeDialogStore.getState().open();
           break;
       }
     });
