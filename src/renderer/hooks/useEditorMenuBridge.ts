@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useOpenImage } from './useOpenImage';
 import { useDocumentStore } from '../stores/documentStore';
-import { canRedo, canUndo } from '../editor/history/HistoryManager';
+import { getRedoLabel, getUndoLabel } from '../editor/document/documentHistoryLabels';
 
 // Bridges the native menu (main process) and the document/history store:
 // incoming menu-triggered actions call store actions, and outgoing document/
@@ -51,8 +51,8 @@ export function useEditorMenuBridge(): void {
   useEffect(() => {
     window.imageEditor.notifyEditorState({
       hasDocument: document !== null,
-      canUndo: history !== null && canUndo(history),
-      canRedo: history !== null && canRedo(history),
+      undoLabel: history ? getUndoLabel(history) : null,
+      redoLabel: history ? getRedoLabel(history) : null,
     });
   }, [document, history]);
 }

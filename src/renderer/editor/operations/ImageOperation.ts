@@ -9,7 +9,7 @@ export type { FlipOperation } from './FlipOperation';
 
 export type ImageOperation = RotateOperation | FlipOperation;
 
-function assertExhaustive(value: never): never {
+export function assertExhaustive(value: never): never {
   throw new Error(`Unhandled image operation: ${JSON.stringify(value)}`);
 }
 

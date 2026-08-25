@@ -135,5 +135,52 @@ describe('documentStore', () => {
       useDocumentStore.getState().redo();
       expect(useDocumentStore.getState().document).toEqual(document);
     });
+
+    it('supports repeated undo/redo across a chain of operations without corrupting history', () => {
+      const original = fakeDocument();
+      useDocumentStore.getState().setDocument(original);
+
+      useDocumentStore.getState().applyOperation({ type: 'rotate', degrees: 90 }); // 100x200
+      useDocumentStore.getState().applyOperation({ type: 'flip', axis: 'horizontal' }); // 100x200
+      useDocumentStore.getState().applyOperation({ type: 'rotate', degrees: 90 }); // 200x100
+      const afterThree = useDocumentStore.getState().document;
+      expect(afterThree?.operations).toHaveLength(3);
+
+      const { undo, redo } = useDocumentStore.getState();
+      undo();
+      undo();
+      undo();
+      expect(useDocumentStore.getState().document).toEqual(original);
+
+      // Undoing past the beginning is a safe no-op.
+      undo();
+      expect(useDocumentStore.getState().document).toEqual(original);
+
+      redo();
+      redo();
+      redo();
+      expect(useDocumentStore.getState().document).toEqual(afterThree);
+
+      // Redoing past the end is a safe no-op.
+      redo();
+      expect(useDocumentStore.getState().document).toEqual(afterThree);
+    });
+
+    it('an undo followed by a different operation replaces the redo branch, not just the present', () => {
+      useDocumentStore.getState().setDocument(fakeDocument());
+      useDocumentStore.getState().applyOperation({ type: 'rotate', degrees: 90 });
+      useDocumentStore.getState().applyOperation({ type: 'rotate', degrees: 90 });
+      useDocumentStore.getState().undo();
+
+      useDocumentStore.getState().applyOperation({ type: 'flip', axis: 'vertical' });
+
+      const { document, history } = useDocumentStore.getState();
+      expect(document?.operations).toEqual([{ type: 'rotate', degrees: 90 }, { type: 'flip', axis: 'vertical' }]);
+      expect(history?.future).toHaveLength(0);
+
+      // The old redo target (the second rotate) is gone, not reachable.
+      useDocumentStore.getState().redo();
+      expect(useDocumentStore.getState().document).toBe(document);
+    });
   });
 });

@@ -35,6 +35,10 @@ function readMenuItemEnabled(app: ElectronApplication, id: string): Promise<bool
   return app.evaluate(({ Menu }, menuId) => Menu.getApplicationMenu()?.getMenuItemById(menuId)?.enabled, id);
 }
 
+function readMenuItemLabel(app: ElectronApplication, id: string): Promise<string | undefined> {
+  return app.evaluate(({ Menu }, menuId) => Menu.getApplicationMenu()?.getMenuItemById(menuId)?.label, id);
+}
+
 let app: ElectronApplication;
 let window: Page;
 
@@ -91,6 +95,38 @@ test('the Undo and Redo menu items enable and disable as history changes', async
   await sendHistoryAction(app, 'undo');
   await expect.poll(() => readMenuItemEnabled(app, 'redo')).toBe(true);
   expect(await readMenuItemEnabled(app, 'undo')).toBe(false);
+});
+
+test('the Undo/Redo menu labels name the operation, per plan.md §10 ("Undo Rotate")', async () => {
+  expect(await readMenuItemLabel(app, 'undo')).toBe('Undo');
+  expect(await readMenuItemLabel(app, 'redo')).toBe('Redo');
+
+  await sendImageAction(app, 'rotate-right');
+  await expect.poll(() => readMenuItemLabel(app, 'undo')).toBe('Undo Rotate Right');
+
+  await sendImageAction(app, 'flip-vertical');
+  await expect.poll(() => readMenuItemLabel(app, 'undo')).toBe('Undo Flip Vertical');
+
+  await sendHistoryAction(app, 'undo');
+  await expect.poll(() => readMenuItemLabel(app, 'undo')).toBe('Undo Rotate Right');
+  await expect.poll(() => readMenuItemLabel(app, 'redo')).toBe('Redo Flip Vertical');
+});
+
+// Electron menu accelerators are matched at the native window/menu level,
+// not through Chromium's synthetic input pipeline, so Playwright's
+// keyboard.press() cannot reliably trigger them here. Instead this confirms
+// the accelerators plan.md §12 calls for are actually wired to the right
+// menu items; the resulting behaviour is covered above via the IPC channel
+// the accelerator's click handler sends.
+test('undo/redo and rotate menu items declare the accelerators from plan.md §12', async () => {
+  function readMenuItemAccelerator(id: string): Promise<string | null | undefined> {
+    return app.evaluate(({ Menu }, menuId) => Menu.getApplicationMenu()?.getMenuItemById(menuId)?.accelerator, id);
+  }
+
+  expect(await readMenuItemAccelerator('undo')).toBe('CmdOrCtrl+Z');
+  expect(await readMenuItemAccelerator('redo')).toBe('CmdOrCtrl+Shift+Z');
+  expect(await readMenuItemAccelerator('rotate-left')).toBe('[');
+  expect(await readMenuItemAccelerator('rotate-right')).toBe(']');
 });
 
 test('the Image menu items are disabled until a document is open', async () => {

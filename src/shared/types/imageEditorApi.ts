@@ -25,8 +25,10 @@ export type HistoryMenuAction = 'undo' | 'redo';
 
 export interface EditorMenuState {
   hasDocument: boolean;
-  canUndo: boolean;
-  canRedo: boolean;
+  // The label of the operation that would be undone/redone (e.g. "Rotate
+  // Right"), or null when there is nothing to undo/redo.
+  undoLabel: string | null;
+  redoLabel: string | null;
 }
 
 export interface ImageEditorApi {

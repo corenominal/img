@@ -1,0 +1,23 @@
+import type { ImageOperation } from './ImageOperation';
+import { assertExhaustive } from './ImageOperation';
+
+// Human-readable labels for history UI, e.g. "Undo Rotate Right".
+export function getOperationLabel(operation: ImageOperation): string {
+  switch (operation.type) {
+    case 'rotate':
+      switch (operation.degrees) {
+        case 90:
+          return 'Rotate Right';
+        case 270:
+          return 'Rotate Left';
+        case 180:
+          return 'Rotate 180°';
+        default:
+          return assertExhaustive(operation.degrees);
+      }
+    case 'flip':
+      return operation.axis === 'horizontal' ? 'Flip Horizontal' : 'Flip Vertical';
+    default:
+      return assertExhaustive(operation);
+  }
+}
