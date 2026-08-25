@@ -17,7 +17,10 @@ test.afterAll(async () => {
 });
 
 test('launches the application and renders the shell', async () => {
-  await expect(window.getByRole('heading', { name: 'Image Editor' })).toBeVisible();
+  await expect(window.getByRole('navigation', { name: 'Tools' })).toBeVisible();
+  await expect(window.getByRole('complementary', { name: 'Adjustments' })).toBeVisible();
+  await expect(window.getByText('No image open')).toBeVisible();
+  await expect(window.getByRole('button', { name: 'Open Image' })).toBeVisible();
 });
 
 test('renderer has no direct Node.js access', async () => {

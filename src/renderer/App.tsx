@@ -1,17 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { AppShell } from './components/AppShell/AppShell';
+import { usePreferenceStore } from './stores/preferenceStore';
 
 export function App(): React.JSX.Element {
-  const [electronVersion, setElectronVersion] = useState<string | null>(null);
+  const theme = usePreferenceStore((state) => state.theme);
 
   useEffect(() => {
-    setElectronVersion(window.imageEditor.getVersions().electron);
-  }, []);
+    const root = window.document.documentElement;
+    if (theme === 'system') {
+      root.removeAttribute('data-theme');
+    } else {
+      root.setAttribute('data-theme', theme);
+    }
+  }, [theme]);
 
-  return (
-    <main className="app-shell">
-      <h1>Image Editor</h1>
-      <p>Application foundation is running.</p>
-      {electronVersion && <p className="version">{`Electron ${electronVersion}`}</p>}
-    </main>
-  );
+  return <AppShell />;
 }

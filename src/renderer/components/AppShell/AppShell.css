@@ -1,0 +1,11 @@
+.app-shell {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    'toolstrip canvas sidebar'
+    'statusbar statusbar statusbar';
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}

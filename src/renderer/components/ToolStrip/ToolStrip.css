@@ -1,0 +1,33 @@
+.tool-strip {
+  grid-area: toolstrip;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  width: 44px;
+  background: var(--color-bg-elevated);
+  border-right: 1px solid var(--color-border);
+}
+
+.tool-strip__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.tool-strip__button:hover {
+  background: var(--color-bg);
+}
+
+.tool-strip__button[aria-pressed='true'] {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+}

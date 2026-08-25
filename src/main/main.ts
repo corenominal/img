@@ -1,6 +1,7 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
+import { buildApplicationMenu } from './menu/applicationMenu';
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined;
 declare const MAIN_WINDOW_VITE_NAME: string;
@@ -33,7 +34,10 @@ const createMainWindow = (): BrowserWindow => {
   return mainWindow;
 };
 
-app.on('ready', createMainWindow);
+app.on('ready', () => {
+  Menu.setApplicationMenu(buildApplicationMenu());
+  createMainWindow();
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
