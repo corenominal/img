@@ -17,6 +17,8 @@ export function getOperationLabel(operation: ImageOperation): string {
       }
     case 'flip':
       return operation.axis === 'horizontal' ? 'Flip Horizontal' : 'Flip Vertical';
+    case 'crop':
+      return 'Crop';
     default:
       return assertExhaustive(operation);
   }

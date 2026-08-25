@@ -1,5 +1,6 @@
 import type { ToolId } from '../../stores/editorStore';
 import { useEditorStore } from '../../stores/editorStore';
+import { useDocumentStore } from '../../stores/documentStore';
 import './ToolStrip.css';
 
 interface ToolDefinition {
@@ -38,22 +39,27 @@ const TOOLS: ToolDefinition[] = [
 export function ToolStrip(): React.JSX.Element {
   const activeTool = useEditorStore((state) => state.activeTool);
   const setActiveTool = useEditorStore((state) => state.setActiveTool);
+  const hasDocument = useDocumentStore((state) => state.document !== null);
 
   return (
     <nav className="tool-strip" aria-label="Tools">
-      {TOOLS.map((tool) => (
-        <button
-          key={tool.id}
-          type="button"
-          className="tool-strip__button"
-          aria-pressed={activeTool === tool.id}
-          aria-label={tool.label}
-          title={tool.label}
-          onClick={() => setActiveTool(tool.id)}
-        >
-          {tool.icon}
-        </button>
-      ))}
+      {TOOLS.map((tool) => {
+        const disabled = tool.id === 'crop' && !hasDocument;
+        return (
+          <button
+            key={tool.id}
+            type="button"
+            className="tool-strip__button"
+            aria-pressed={activeTool === tool.id}
+            aria-label={tool.label}
+            title={disabled ? `${tool.label} (open an image first)` : tool.label}
+            disabled={disabled}
+            onClick={() => setActiveTool(tool.id)}
+          >
+            {tool.icon}
+          </button>
+        );
+      })}
     </nav>
   );
 }

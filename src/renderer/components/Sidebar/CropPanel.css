@@ -1,0 +1,49 @@
+.crop-panel__ratios {
+  margin: 0 0 12px;
+  padding: 0;
+  border: none;
+}
+
+.crop-panel__ratios legend {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+
+.crop-panel__ratio-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  font-size: 13px;
+}
+
+.crop-panel__hint {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.crop-panel__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.crop-panel__actions button {
+  flex: 1;
+  padding: 6px 0;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.crop-panel__actions .crop-panel__commit {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border-color: transparent;
+}

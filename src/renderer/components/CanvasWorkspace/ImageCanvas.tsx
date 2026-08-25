@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import type { ImageDocument } from '../../editor/document/documentTypes';
-import { renderDocumentToCanvas } from '../../editor/rendering/CanvasRenderer';
+import { renderToCanvas } from '../../editor/rendering/CanvasRenderer';
+import { flattenOperations } from '../../editor/rendering/flattenOperations';
 import { ZOOM_STEP_FACTOR } from '../../editor/viewport/viewportMath';
 import { useResizeObserver } from '../../hooks/useResizeObserver';
 import { useViewportInteractions } from '../../hooks/useViewportInteractions';
@@ -91,18 +92,20 @@ export function ImageCanvas({ document: activeDocument }: ImageCanvasProps): Rea
     activeDocument.height,
   ]);
 
+  // Only re-flatten when the source bitmap or operation stack actually
+  // change (not on every pan/zoom re-render, which would redo this work on
+  // every pointermove frame).
+  const flattenedSource = useMemo(
+    () => flattenOperations(activeDocument.source, activeDocument.operations),
+    [activeDocument.source, activeDocument.operations],
+  );
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas && containerSize.width > 0 && containerSize.height > 0) {
-      renderDocumentToCanvas(
-        canvas,
-        activeDocument,
-        { zoom, offsetX, offsetY },
-        containerSize,
-        getDevicePixelRatio(),
-      );
+      renderToCanvas(canvas, flattenedSource, { zoom, offsetX, offsetY }, containerSize, getDevicePixelRatio());
     }
-  }, [activeDocument, zoom, offsetX, offsetY, containerSize]);
+  }, [flattenedSource, zoom, offsetX, offsetY, containerSize]);
 
   const cursorClass = isPanning ? 'image-canvas--panning' : canPan ? 'image-canvas--pan-ready' : '';
 

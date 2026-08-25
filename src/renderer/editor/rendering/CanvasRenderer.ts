@@ -1,14 +1,12 @@
-import type { ImageDocument } from '../document/documentTypes';
-import { applyOperationsTransform } from '../operations/ImageOperation';
+import type { RenderableSource } from './flattenOperations';
 import type { Size, ViewportState } from '../viewport/viewportTypes';
 
-// The pipeline described in plan.md §9 (Source -> geometric ops -> colour
-// adjustments -> scale to viewport -> canvas). There are no colour
-// adjustments yet, so geometric operations are applied directly onto the
-// viewport transform before the source bitmap is drawn.
-export function renderDocumentToCanvas(
+// The final step of the pipeline described in plan.md §9: scale a
+// fully-flattened source (operations already baked in — see
+// flattenOperations.ts) into the viewport.
+export function renderToCanvas(
   canvas: HTMLCanvasElement,
-  document: ImageDocument,
+  source: RenderableSource,
   viewport: ViewportState,
   containerSize: Size,
   devicePixelRatio: number,
@@ -41,9 +39,5 @@ export function renderDocumentToCanvas(
     viewport.offsetX * devicePixelRatio,
     viewport.offsetY * devicePixelRatio,
   );
-  applyOperationsTransform(context, document.operations, {
-    width: document.source.width,
-    height: document.source.height,
-  });
-  context.drawImage(document.source, 0, 0);
+  context.drawImage(source, 0, 0);
 }

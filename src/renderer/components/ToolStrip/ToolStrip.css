@@ -31,3 +31,8 @@
   background: var(--color-accent);
   color: var(--color-accent-text);
 }
+
+.tool-strip__button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

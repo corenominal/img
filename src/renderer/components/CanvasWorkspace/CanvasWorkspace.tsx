@@ -1,12 +1,15 @@
 import { useDocumentStore } from '../../stores/documentStore';
+import { useEditorStore } from '../../stores/editorStore';
 import { useOpenImage } from '../../hooks/useOpenImage';
 import { ImageCanvas } from './ImageCanvas';
+import { CropOverlay } from './CropOverlay';
 import './CanvasWorkspace.css';
 
 export function CanvasWorkspace(): React.JSX.Element {
   const activeDocument = useDocumentStore((state) => state.document);
   const openError = useDocumentStore((state) => state.openError);
   const setOpenError = useDocumentStore((state) => state.setOpenError);
+  const activeTool = useEditorStore((state) => state.activeTool);
   const openImage = useOpenImage();
 
   return (
@@ -25,7 +28,12 @@ export function CanvasWorkspace(): React.JSX.Element {
         </div>
       )}
       {activeDocument ? (
-        <ImageCanvas document={activeDocument} />
+        <>
+          <ImageCanvas document={activeDocument} />
+          {activeTool === 'crop' && (
+            <CropOverlay imageSize={{ width: activeDocument.width, height: activeDocument.height }} />
+          )}
+        </>
       ) : (
         <div className="canvas-workspace__empty">
           <p className="canvas-workspace__title">No image open</p>

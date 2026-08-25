@@ -21,4 +21,8 @@ describe('getOperationLabel', () => {
   it('labels a vertical flip', () => {
     expect(getOperationLabel({ type: 'flip', axis: 'vertical' })).toBe('Flip Vertical');
   });
+
+  it('labels a crop', () => {
+    expect(getOperationLabel({ type: 'crop', x: 0, y: 0, width: 10, height: 10 })).toBe('Crop');
+  });
 });

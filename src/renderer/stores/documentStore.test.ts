@@ -84,6 +84,16 @@ describe('documentStore', () => {
       expect(document?.height).toBe(100);
       expect(document?.operations).toHaveLength(2);
     });
+
+    it('sets dimensions directly from a crop operation, independent of the prior size', () => {
+      useDocumentStore.getState().setDocument(fakeDocument());
+      useDocumentStore.getState().applyOperation({ type: 'crop', x: 20, y: 10, width: 60, height: 45 });
+
+      const { document } = useDocumentStore.getState();
+      expect(document?.width).toBe(60);
+      expect(document?.height).toBe(45);
+      expect(document?.dirty).toBe(true);
+    });
   });
 
   describe('undo/redo', () => {

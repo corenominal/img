@@ -1,0 +1,75 @@
+.crop-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.crop-overlay__rect {
+  position: absolute;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  outline: 1px solid #ffffff;
+  outline-offset: -1px;
+  pointer-events: auto;
+  cursor: move;
+  touch-action: none;
+}
+
+.crop-overlay__handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px;
+  background: #ffffff;
+  border: 1px solid #1a1a1a;
+  border-radius: 2px;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.crop-overlay__handle--nw {
+  left: 0;
+  top: 0;
+  cursor: nwse-resize;
+}
+
+.crop-overlay__handle--n {
+  left: 50%;
+  top: 0;
+  cursor: ns-resize;
+}
+
+.crop-overlay__handle--ne {
+  left: 100%;
+  top: 0;
+  cursor: nesw-resize;
+}
+
+.crop-overlay__handle--e {
+  left: 100%;
+  top: 50%;
+  cursor: ew-resize;
+}
+
+.crop-overlay__handle--se {
+  left: 100%;
+  top: 100%;
+  cursor: nwse-resize;
+}
+
+.crop-overlay__handle--s {
+  left: 50%;
+  top: 100%;
+  cursor: ns-resize;
+}
+
+.crop-overlay__handle--sw {
+  left: 0;
+  top: 100%;
+  cursor: nesw-resize;
+}
+
+.crop-overlay__handle--w {
+  left: 0;
+  top: 50%;
+  cursor: ew-resize;
+}

@@ -3,11 +3,14 @@ import type { RotateOperation } from './RotateOperation';
 import { applyRotateTransform, rotateSize } from './RotateOperation';
 import type { FlipOperation } from './FlipOperation';
 import { applyFlipTransform, flipSize } from './FlipOperation';
+import type { CropOperation } from './CropOperation';
+import { cropSize } from './CropOperation';
 
 export type { RotateOperation } from './RotateOperation';
 export type { FlipOperation } from './FlipOperation';
+export type { CropOperation } from './CropOperation';
 
-export type ImageOperation = RotateOperation | FlipOperation;
+export type ImageOperation = RotateOperation | FlipOperation | CropOperation;
 
 export function assertExhaustive(value: never): never {
   throw new Error(`Unhandled image operation: ${JSON.stringify(value)}`);
@@ -19,14 +22,21 @@ export function applyOperationToSize(size: Size, operation: ImageOperation): Siz
       return rotateSize(size, operation.degrees);
     case 'flip':
       return flipSize(size);
+    case 'crop':
+      return cropSize(operation);
     default:
       return assertExhaustive(operation);
   }
 }
 
-export function applyOperationTransform(
+// Rotate/flip are pure canvas transforms applied to a full drawImage(source,
+// 0, 0) call. Crop is deliberately excluded: it needs to control the
+// drawImage call itself (a cropping source-rect), not just pre-apply a
+// transform — see flattenOperations.ts for why crop can't share a single
+// composed transform with the other operations.
+export function applyGeometricTransform(
   context: CanvasRenderingContext2D,
-  operation: ImageOperation,
+  operation: RotateOperation | FlipOperation,
   sizeBefore: Size,
 ): void {
   switch (operation.type) {
@@ -38,39 +48,5 @@ export function applyOperationTransform(
       return;
     default:
       assertExhaustive(operation);
-  }
-}
-
-// The sizes at every step of the stack: sizes[0] is the source size,
-// sizes[operations.length] is the final (current) document size.
-export function computeOperationSizes(sourceSize: Size, operations: ImageOperation[]): Size[] {
-  const sizes = [sourceSize];
-  for (const operation of operations) {
-    sizes.push(applyOperationToSize(sizes[sizes.length - 1] ?? sourceSize, operation));
-  }
-  return sizes;
-}
-
-export function getFinalSize(sourceSize: Size, operations: ImageOperation[]): Size {
-  const sizes = computeOperationSizes(sourceSize, operations);
-  return sizes[sizes.length - 1] ?? sourceSize;
-}
-
-// Applies the whole operation stack's geometric transform onto the canvas
-// context (composing onto whatever transform is already set, e.g. the
-// viewport's zoom/pan), so a subsequent drawImage(source, 0, 0) lands
-// correctly in the current document's coordinate space.
-export function applyOperationsTransform(
-  context: CanvasRenderingContext2D,
-  operations: ImageOperation[],
-  sourceSize: Size,
-): void {
-  const sizes = computeOperationSizes(sourceSize, operations);
-  for (let i = operations.length - 1; i >= 0; i -= 1) {
-    const operation = operations[i];
-    const sizeBefore = sizes[i];
-    if (operation && sizeBefore) {
-      applyOperationTransform(context, operation, sizeBefore);
-    }
   }
 }

@@ -3,20 +3,9 @@ import type { PointerEvent as ReactPointerEvent, RefObject } from 'react';
 import { useViewportStore } from '../stores/viewportStore';
 import type { ToolId } from '../stores/editorStore';
 import type { Point } from '../editor/viewport/viewportTypes';
+import { isEditableElement } from '../utils/dom';
 
 const WHEEL_ZOOM_SENSITIVITY = 0.0015;
-
-function isEditableElement(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) {
-    return false;
-  }
-  return (
-    target.tagName === 'INPUT' ||
-    target.tagName === 'TEXTAREA' ||
-    target.tagName === 'SELECT' ||
-    target.isContentEditable
-  );
-}
 
 function useSpaceHeld(): boolean {
   const [spaceHeld, setSpaceHeld] = useState(false);
