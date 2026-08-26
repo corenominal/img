@@ -43,6 +43,8 @@ export function getOperationLabel(operation: ImageOperation): string {
       return 'Gamma';
     case 'blackPoint':
       return 'Black Point';
+    case 'whitePoint':
+      return 'White Point';
     default:
       return assertExhaustive(operation);
   }

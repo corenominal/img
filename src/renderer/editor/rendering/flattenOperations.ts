@@ -18,6 +18,8 @@ import type { GammaOperation } from '../operations/GammaOperation';
 import { applyGamma } from '../operations/GammaOperation';
 import type { BlackPointOperation } from '../operations/BlackPointOperation';
 import { applyBlackPoint } from '../operations/BlackPointOperation';
+import type { WhitePointOperation } from '../operations/WhitePointOperation';
+import { applyWhitePoint } from '../operations/WhitePointOperation';
 import type { Size } from '../viewport/viewportTypes';
 
 export type RenderableSource = ImageBitmap | HTMLCanvasElement;
@@ -26,8 +28,8 @@ export type RenderableSource = ImageBitmap | HTMLCanvasElement;
 // per-pixel read/rewrite, whether luminance-dependent (exposure/
 // highlights/shadows), a flat per-channel shift (temperature/tint),
 // saturation-dependent (vibrance), a per-channel power curve (gamma), or a
-// per-channel endpoint remap (black point) — so they share the same "draw,
-// then rewrite pixels in place" render step below.
+// per-channel endpoint remap (black point/white point) — so they share the
+// same "draw, then rewrite pixels in place" render step below.
 type PixelOperation =
   | ExposureOperation
   | HighlightsOperation
@@ -36,7 +38,8 @@ type PixelOperation =
   | TintOperation
   | VibranceOperation
   | GammaOperation
-  | BlackPointOperation;
+  | BlackPointOperation
+  | WhitePointOperation;
 
 function isPixelOperation(operation: ImageOperation): operation is PixelOperation {
   return (
@@ -47,7 +50,8 @@ function isPixelOperation(operation: ImageOperation): operation is PixelOperatio
     operation.type === 'tint' ||
     operation.type === 'vibrance' ||
     operation.type === 'gamma' ||
-    operation.type === 'blackPoint'
+    operation.type === 'blackPoint' ||
+    operation.type === 'whitePoint'
   );
 }
 
@@ -80,6 +84,9 @@ function applyPixelOperation(
       return;
     case 'blackPoint':
       applyBlackPoint(context, size, operation);
+      return;
+    case 'whitePoint':
+      applyWhitePoint(context, size, operation);
       return;
   }
 }

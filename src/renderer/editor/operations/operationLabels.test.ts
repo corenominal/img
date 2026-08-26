@@ -75,4 +75,8 @@ describe('getOperationLabel', () => {
   it('labels a black point adjustment', () => {
     expect(getOperationLabel({ type: 'blackPoint', value: 40 })).toBe('Black Point');
   });
+
+  it('labels a white point adjustment', () => {
+    expect(getOperationLabel({ type: 'whitePoint', value: -30 })).toBe('White Point');
+  });
 });

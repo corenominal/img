@@ -5,11 +5,12 @@ import type { AdjustmentKind } from './AdjustmentOperation';
 // AdjustPanel.tsx: `AdjustmentKind` (brightness/contrast/saturation,
 // rendered via a CSS `filter`) plus any other kind that follows the same
 // "one gesture, one relative delta" convention but renders differently
-// (exposure/highlights/shadows/temperature/tint/vibrance/gamma/blackPoint
-// rewrite pixels directly — see ExposureOperation.ts/HighlightsOperation.ts/
-// ShadowsOperation.ts/TemperatureOperation.ts/TintOperation.ts/
-// VibranceOperation.ts/GammaOperation.ts/BlackPointOperation.ts). Add new
-// kinds here as Phase 12's remaining adjustments land.
+// (exposure/highlights/shadows/temperature/tint/vibrance/gamma/blackPoint/
+// whitePoint rewrite pixels directly — see ExposureOperation.ts/
+// HighlightsOperation.ts/ShadowsOperation.ts/TemperatureOperation.ts/
+// TintOperation.ts/VibranceOperation.ts/GammaOperation.ts/
+// BlackPointOperation.ts/WhitePointOperation.ts). This completes Phase 12's
+// planned adjustment list.
 export type AdjustmentSliderKind =
   | AdjustmentKind
   | 'exposure'
@@ -19,7 +20,8 @@ export type AdjustmentSliderKind =
   | 'tint'
   | 'vibrance'
   | 'gamma'
-  | 'blackPoint';
+  | 'blackPoint'
+  | 'whitePoint';
 
 // Each committed operation only stores the delta applied by one gesture
 // (see AdjustmentOperation.ts), so the adjustment's current absolute value

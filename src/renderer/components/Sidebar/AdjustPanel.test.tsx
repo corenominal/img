@@ -45,6 +45,8 @@ describe('AdjustPanel', () => {
     expect(screen.getByRole('button', { name: 'Reset Gamma' })).toBeDisabled();
     expect(screen.getByRole('slider', { name: 'Black Point' })).toHaveValue('0');
     expect(screen.getByRole('button', { name: 'Reset Black Point' })).toBeDisabled();
+    expect(screen.getByRole('slider', { name: 'White Point' })).toHaveValue('0');
+    expect(screen.getByRole('button', { name: 'Reset White Point' })).toBeDisabled();
     expect(screen.getByRole('slider', { name: 'Brightness' })).toHaveValue('0');
     expect(screen.getByRole('button', { name: 'Reset Brightness' })).toBeDisabled();
   });
@@ -165,6 +167,21 @@ describe('AdjustPanel', () => {
     ]);
     expect(useAdjustmentStore.getState().active).toEqual({});
     expect(screen.getByRole('slider', { name: 'Black Point' })).toHaveValue('40');
+  });
+
+  it('white point behaves like the other pixel-based adjustments: commits one operation and holds position', () => {
+    useDocumentStore.getState().setDocument(fakeDocument());
+    render(<AdjustPanel />);
+
+    const slider = screen.getByRole('slider', { name: 'White Point' });
+    fireEvent.change(slider, { target: { value: '-30' } });
+    fireEvent.pointerUp(slider);
+
+    expect(useDocumentStore.getState().document?.operations).toEqual([
+      { type: 'whitePoint', value: -30 },
+    ]);
+    expect(useAdjustmentStore.getState().active).toEqual({});
+    expect(screen.getByRole('slider', { name: 'White Point' })).toHaveValue('-30');
   });
 
   it('reflects an already-committed total on mount, not zero', () => {

@@ -101,4 +101,13 @@ describe('getAdjustmentTotal', () => {
     ];
     expect(getAdjustmentTotal(operations, 'blackPoint')).toBe(40);
   });
+
+  it('sums white point deltas too', () => {
+    const operations: ImageOperation[] = [
+      { type: 'whitePoint', value: -20 },
+      { type: 'blackPoint', value: 10 },
+      { type: 'whitePoint', value: -10 },
+    ];
+    expect(getAdjustmentTotal(operations, 'whitePoint')).toBe(-30);
+  });
 });
