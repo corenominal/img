@@ -11,6 +11,8 @@ import type { ResizeOperation } from './ResizeOperation';
 import { resizeSize } from './ResizeOperation';
 import type { ExposureOperation } from './ExposureOperation';
 import { exposureSize } from './ExposureOperation';
+import type { HighlightsOperation } from './HighlightsOperation';
+import { highlightsSize } from './HighlightsOperation';
 
 export type { RotateOperation } from './RotateOperation';
 export type { FlipOperation } from './FlipOperation';
@@ -18,6 +20,7 @@ export type { CropOperation } from './CropOperation';
 export type { AdjustmentOperation, AdjustmentKind } from './AdjustmentOperation';
 export type { ResizeOperation, ResamplingMethod } from './ResizeOperation';
 export type { ExposureOperation } from './ExposureOperation';
+export type { HighlightsOperation } from './HighlightsOperation';
 
 export type ImageOperation =
   | RotateOperation
@@ -25,7 +28,8 @@ export type ImageOperation =
   | CropOperation
   | AdjustmentOperation
   | ResizeOperation
-  | ExposureOperation;
+  | ExposureOperation
+  | HighlightsOperation;
 
 export function assertExhaustive(value: never): never {
   throw new Error(`Unhandled image operation: ${JSON.stringify(value)}`);
@@ -47,6 +51,8 @@ export function applyOperationToSize(size: Size, operation: ImageOperation): Siz
       return resizeSize(operation);
     case 'exposure':
       return exposureSize(size);
+    case 'highlights':
+      return highlightsSize(size);
     default:
       return assertExhaustive(operation);
   }
@@ -87,6 +93,7 @@ export function isImageOperation(value: unknown): value is ImageOperation {
         (candidate.resampling === 'smooth' || candidate.resampling === 'pixelated')
       );
     case 'exposure':
+    case 'highlights':
       return isFiniteNumber(candidate.value);
     default:
       return false;
@@ -94,12 +101,13 @@ export function isImageOperation(value: unknown): value is ImageOperation {
 }
 
 // Rotate/flip are pure canvas transforms applied to a full drawImage(source,
-// 0, 0) call. Crop, the colour adjustments, resize, and exposure are
-// deliberately excluded: crop needs to control the drawImage call itself
-// (a cropping source-rect) rather than pre-apply a transform, adjustments
-// apply a canvas `filter` instead of a transform, resize scales the
-// destination rect of drawImage, and exposure rewrites pixels directly
-// (no canvas-native filter or transform covers it) — see
+// 0, 0) call. Crop, the colour adjustments, resize, exposure and
+// highlights are deliberately excluded: crop needs to control the
+// drawImage call itself (a cropping source-rect) rather than pre-apply a
+// transform, adjustments apply a canvas `filter` instead of a transform,
+// resize scales the destination rect of drawImage, and exposure/
+// highlights rewrite pixels directly (no canvas-native filter or
+// transform covers a luminance-dependent adjustment) — see
 // flattenOperations.ts.
 export function applyGeometricTransform(
   context: CanvasRenderingContext2D,

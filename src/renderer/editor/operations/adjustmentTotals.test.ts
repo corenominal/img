@@ -38,4 +38,13 @@ describe('getAdjustmentTotal', () => {
     ];
     expect(getAdjustmentTotal(operations, 'exposure')).toBe(20);
   });
+
+  it('sums highlights deltas too', () => {
+    const operations: ImageOperation[] = [
+      { type: 'highlights', value: -20 },
+      { type: 'exposure', value: 10 },
+      { type: 'highlights', value: 5 },
+    ];
+    expect(getAdjustmentTotal(operations, 'highlights')).toBe(-15);
+  });
 });

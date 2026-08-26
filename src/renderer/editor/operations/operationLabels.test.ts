@@ -47,4 +47,8 @@ describe('getOperationLabel', () => {
   it('labels an exposure adjustment', () => {
     expect(getOperationLabel({ type: 'exposure', value: 40 })).toBe('Exposure');
   });
+
+  it('labels a highlights adjustment', () => {
+    expect(getOperationLabel({ type: 'highlights', value: -30 })).toBe('Highlights');
+  });
 });

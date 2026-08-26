@@ -29,6 +29,8 @@ export function getOperationLabel(operation: ImageOperation): string {
       return 'Resize';
     case 'exposure':
       return 'Exposure';
+    case 'highlights':
+      return 'Highlights';
     default:
       return assertExhaustive(operation);
   }

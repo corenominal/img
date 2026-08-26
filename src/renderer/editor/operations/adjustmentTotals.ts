@@ -5,9 +5,10 @@ import type { AdjustmentKind } from './AdjustmentOperation';
 // AdjustPanel.tsx: `AdjustmentKind` (brightness/contrast/saturation,
 // rendered via a CSS `filter`) plus any other kind that follows the same
 // "one gesture, one relative delta" convention but renders differently
-// (exposure rewrites pixels directly — see ExposureOperation.ts). Add new
-// kinds here as Phase 12's remaining adjustments land.
-export type AdjustmentSliderKind = AdjustmentKind | 'exposure';
+// (exposure and highlights rewrite pixels directly — see
+// ExposureOperation.ts/HighlightsOperation.ts). Add new kinds here as
+// Phase 12's remaining adjustments land.
+export type AdjustmentSliderKind = AdjustmentKind | 'exposure' | 'highlights';
 
 // Each committed operation only stores the delta applied by one gesture
 // (see AdjustmentOperation.ts), so the adjustment's current absolute value
