@@ -16,6 +16,8 @@ import type { VibranceOperation } from '../operations/VibranceOperation';
 import { applyVibrance } from '../operations/VibranceOperation';
 import type { GammaOperation } from '../operations/GammaOperation';
 import { applyGamma } from '../operations/GammaOperation';
+import type { BlackPointOperation } from '../operations/BlackPointOperation';
+import { applyBlackPoint } from '../operations/BlackPointOperation';
 import type { Size } from '../viewport/viewportTypes';
 
 export type RenderableSource = ImageBitmap | HTMLCanvasElement;
@@ -23,9 +25,9 @@ export type RenderableSource = ImageBitmap | HTMLCanvasElement;
 // None of these have a CSS-filter or transform equivalent — each needs a
 // per-pixel read/rewrite, whether luminance-dependent (exposure/
 // highlights/shadows), a flat per-channel shift (temperature/tint),
-// saturation-dependent (vibrance), or a per-channel power curve (gamma) —
-// so they share the same "draw, then rewrite pixels in place" render step
-// below.
+// saturation-dependent (vibrance), a per-channel power curve (gamma), or a
+// per-channel endpoint remap (black point) — so they share the same "draw,
+// then rewrite pixels in place" render step below.
 type PixelOperation =
   | ExposureOperation
   | HighlightsOperation
@@ -33,7 +35,8 @@ type PixelOperation =
   | TemperatureOperation
   | TintOperation
   | VibranceOperation
-  | GammaOperation;
+  | GammaOperation
+  | BlackPointOperation;
 
 function isPixelOperation(operation: ImageOperation): operation is PixelOperation {
   return (
@@ -43,7 +46,8 @@ function isPixelOperation(operation: ImageOperation): operation is PixelOperatio
     operation.type === 'temperature' ||
     operation.type === 'tint' ||
     operation.type === 'vibrance' ||
-    operation.type === 'gamma'
+    operation.type === 'gamma' ||
+    operation.type === 'blackPoint'
   );
 }
 
@@ -73,6 +77,9 @@ function applyPixelOperation(
       return;
     case 'gamma':
       applyGamma(context, size, operation);
+      return;
+    case 'blackPoint':
+      applyBlackPoint(context, size, operation);
       return;
   }
 }

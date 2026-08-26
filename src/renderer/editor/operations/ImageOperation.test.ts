@@ -107,6 +107,15 @@ describe('applyOperationToSize', () => {
       height: 100,
     });
   });
+
+  it('applies a black point operation (no size change)', () => {
+    expect(
+      applyOperationToSize({ width: 200, height: 100 }, { type: 'blackPoint', value: 40 }),
+    ).toEqual({
+      width: 200,
+      height: 100,
+    });
+  });
 });
 
 describe('applyGeometricTransform', () => {
@@ -147,6 +156,7 @@ describe('isImageOperation', () => {
     { type: 'tint', value: 25 },
     { type: 'vibrance', value: 30 },
     { type: 'gamma', value: -20 },
+    { type: 'blackPoint', value: 40 },
   ])('accepts a valid $type operation', (operation) => {
     expect(isImageOperation(operation)).toBe(true);
   });
@@ -180,6 +190,8 @@ describe('isImageOperation', () => {
     { type: 'vibrance' },
     { type: 'gamma', value: 'darker' },
     { type: 'gamma' },
+    { type: 'blackPoint', value: 'crushed' },
+    { type: 'blackPoint' },
   ])('rejects %j', (value) => {
     expect(isImageOperation(value)).toBe(false);
   });

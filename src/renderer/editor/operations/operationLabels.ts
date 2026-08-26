@@ -41,6 +41,8 @@ export function getOperationLabel(operation: ImageOperation): string {
       return 'Vibrance';
     case 'gamma':
       return 'Gamma';
+    case 'blackPoint':
+      return 'Black Point';
     default:
       return assertExhaustive(operation);
   }

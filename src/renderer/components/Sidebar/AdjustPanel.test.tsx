@@ -43,6 +43,8 @@ describe('AdjustPanel', () => {
     expect(screen.getByRole('button', { name: 'Reset Vibrance' })).toBeDisabled();
     expect(screen.getByRole('slider', { name: 'Gamma' })).toHaveValue('0');
     expect(screen.getByRole('button', { name: 'Reset Gamma' })).toBeDisabled();
+    expect(screen.getByRole('slider', { name: 'Black Point' })).toHaveValue('0');
+    expect(screen.getByRole('button', { name: 'Reset Black Point' })).toBeDisabled();
     expect(screen.getByRole('slider', { name: 'Brightness' })).toHaveValue('0');
     expect(screen.getByRole('button', { name: 'Reset Brightness' })).toBeDisabled();
   });
@@ -148,6 +150,21 @@ describe('AdjustPanel', () => {
     ]);
     expect(useAdjustmentStore.getState().active).toEqual({});
     expect(screen.getByRole('slider', { name: 'Gamma' })).toHaveValue('-20');
+  });
+
+  it('black point behaves like the other pixel-based adjustments: commits one operation and holds position', () => {
+    useDocumentStore.getState().setDocument(fakeDocument());
+    render(<AdjustPanel />);
+
+    const slider = screen.getByRole('slider', { name: 'Black Point' });
+    fireEvent.change(slider, { target: { value: '40' } });
+    fireEvent.pointerUp(slider);
+
+    expect(useDocumentStore.getState().document?.operations).toEqual([
+      { type: 'blackPoint', value: 40 },
+    ]);
+    expect(useAdjustmentStore.getState().active).toEqual({});
+    expect(screen.getByRole('slider', { name: 'Black Point' })).toHaveValue('40');
   });
 
   it('reflects an already-committed total on mount, not zero', () => {

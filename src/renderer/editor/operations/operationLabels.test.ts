@@ -71,4 +71,8 @@ describe('getOperationLabel', () => {
   it('labels a gamma adjustment', () => {
     expect(getOperationLabel({ type: 'gamma', value: -20 })).toBe('Gamma');
   });
+
+  it('labels a black point adjustment', () => {
+    expect(getOperationLabel({ type: 'blackPoint', value: 40 })).toBe('Black Point');
+  });
 });

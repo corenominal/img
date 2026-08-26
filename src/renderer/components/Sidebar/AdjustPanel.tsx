@@ -15,6 +15,7 @@ const ADJUSTMENTS: { kind: AdjustmentSliderKind; label: string }[] = [
   { kind: 'tint', label: 'Tint' },
   { kind: 'vibrance', label: 'Vibrance' },
   { kind: 'gamma', label: 'Gamma' },
+  { kind: 'blackPoint', label: 'Black Point' },
   { kind: 'brightness', label: 'Brightness' },
   { kind: 'contrast', label: 'Contrast' },
   { kind: 'saturation', label: 'Saturation' },

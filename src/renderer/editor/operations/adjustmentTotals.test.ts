@@ -92,4 +92,13 @@ describe('getAdjustmentTotal', () => {
     ];
     expect(getAdjustmentTotal(operations, 'gamma')).toBe(-20);
   });
+
+  it('sums black point deltas too', () => {
+    const operations: ImageOperation[] = [
+      { type: 'blackPoint', value: 30 },
+      { type: 'gamma', value: -10 },
+      { type: 'blackPoint', value: 10 },
+    ];
+    expect(getAdjustmentTotal(operations, 'blackPoint')).toBe(40);
+  });
 });
