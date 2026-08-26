@@ -106,9 +106,9 @@ function get2dContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
   return context;
 }
 
-// Bakes the document's operation stack into a single drawable source by
-// replaying each operation onto a fresh canvas in turn, rather than
-// composing every operation into one shared canvas transform.
+// Bakes an operation stack into a single drawable source by replaying each
+// operation onto a fresh canvas in turn, rather than composing every
+// operation into one shared canvas transform.
 //
 // This matters once crop is in the mix: a crop's clip region freezes in
 // device space the moment clip() is called and is *not* affected by any
@@ -116,10 +116,20 @@ function get2dContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
 // stack would end up misaligned with whatever geometric transform comes
 // after it if composed into one shared transform. Rendering step-by-step
 // onto isolated canvases sidesteps that entirely, and also gives export
-// (a later phase) the same single source of truth for "what does the
-// current document actually look like".
+// the same single source of truth for "what does the current document
+// actually look like".
+//
+// `source` accepts a `RenderableSource`, not just the document's original
+// `ImageBitmap`: this lets a caller fold the same list in stages — e.g.
+// flatten a committed operation stack once and cache the result, then feed
+// that cached canvas back in here as `source` with just a small delta of
+// further operations, rather than replaying the whole stack from the
+// original bitmap every time. The result is identical either way, since
+// this is a plain left fold over `operations` and folding in two stages
+// produces the same final value as folding in one — see ImageCanvas.tsx
+// for the caller that relies on this for live adjustment-slider previews.
 export function flattenOperations(
-  source: ImageBitmap,
+  source: RenderableSource,
   operations: ImageOperation[],
 ): RenderableSource {
   let current: RenderableSource = source;

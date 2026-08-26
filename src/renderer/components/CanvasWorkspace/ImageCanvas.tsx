@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import type { ImageDocument } from '../../editor/document/documentTypes';
-import type { AdjustmentKind } from '../../editor/operations/AdjustmentOperation';
+import type { AdjustmentSliderKind } from '../../editor/operations/adjustmentTotals';
 import { getAdjustmentTotal } from '../../editor/operations/adjustmentTotals';
 import type { ImageOperation } from '../../editor/operations/ImageOperation';
 import { renderToCanvas } from '../../editor/rendering/CanvasRenderer';
@@ -107,32 +107,42 @@ export function ImageCanvas({ document: activeDocument }: ImageCanvasProps): Rea
   // absolute value it's currently showing, which hasn't been committed to
   // document history yet (see useAdjustmentActions.ts). The delta between
   // that and the committed total is what actually needs previewing on top
-  // of the flattened document, at the cost of re-flattening on every
-  // slider tick — acceptable for now per plan.md §13 (profile before
-  // optimising).
+  // of the flattened document.
   const activeAdjustments = useAdjustmentStore((state) => state.active);
   const previewOperations = useMemo(() => {
     const ops: ImageOperation[] = [];
-    for (const kind of Object.keys(activeAdjustments) as AdjustmentKind[]) {
+    for (const kind of Object.keys(activeAdjustments) as AdjustmentSliderKind[]) {
       const targetValue = activeAdjustments[kind];
       if (targetValue === undefined) {
         continue;
       }
       const delta = targetValue - getAdjustmentTotal(activeDocument.operations, kind);
       if (delta !== 0) {
-        ops.push({ type: kind, value: delta });
+        // AdjustmentSliderKind spans multiple ImageOperation members, so TS
+        // can't verify this generic `{ type, value }` shape against the
+        // discriminated union on its own — see useAdjustmentActions.ts for
+        // the same pairing.
+        ops.push({ type: kind, value: delta } as ImageOperation);
       }
     }
     return ops;
   }, [activeAdjustments, activeDocument.operations]);
 
+  // Flattening the committed stack is memoized separately from the live
+  // preview delta: it only changes when an operation is actually committed
+  // (or undone/redone), not on every slider tick. Each tick then only
+  // replays `previewOperations` (typically zero or one operation) on top
+  // of that cached canvas, rather than re-flattening every committed
+  // operation from the original source on every tick — the cost of a drag
+  // no longer grows with how many edits are already in the document.
+  const flattenedCommitted = useMemo(
+    () => flattenOperations(activeDocument.source, activeDocument.operations),
+    [activeDocument.source, activeDocument.operations],
+  );
+
   const flattenedSource = useMemo(
-    () =>
-      flattenOperations(activeDocument.source, [
-        ...activeDocument.operations,
-        ...previewOperations,
-      ]),
-    [activeDocument.source, activeDocument.operations, previewOperations],
+    () => flattenOperations(flattenedCommitted, previewOperations),
+    [flattenedCommitted, previewOperations],
   );
 
   useEffect(() => {
