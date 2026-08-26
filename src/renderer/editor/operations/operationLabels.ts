@@ -39,6 +39,8 @@ export function getOperationLabel(operation: ImageOperation): string {
       return 'Tint';
     case 'vibrance':
       return 'Vibrance';
+    case 'gamma':
+      return 'Gamma';
     default:
       return assertExhaustive(operation);
   }

@@ -98,6 +98,15 @@ describe('applyOperationToSize', () => {
       height: 100,
     });
   });
+
+  it('applies a gamma operation (no size change)', () => {
+    expect(
+      applyOperationToSize({ width: 200, height: 100 }, { type: 'gamma', value: -20 }),
+    ).toEqual({
+      width: 200,
+      height: 100,
+    });
+  });
 });
 
 describe('applyGeometricTransform', () => {
@@ -137,6 +146,7 @@ describe('isImageOperation', () => {
     { type: 'temperature', value: -40 },
     { type: 'tint', value: 25 },
     { type: 'vibrance', value: 30 },
+    { type: 'gamma', value: -20 },
   ])('accepts a valid $type operation', (operation) => {
     expect(isImageOperation(operation)).toBe(true);
   });
@@ -168,6 +178,8 @@ describe('isImageOperation', () => {
     { type: 'tint' },
     { type: 'vibrance', value: 'more' },
     { type: 'vibrance' },
+    { type: 'gamma', value: 'darker' },
+    { type: 'gamma' },
   ])('rejects %j', (value) => {
     expect(isImageOperation(value)).toBe(false);
   });

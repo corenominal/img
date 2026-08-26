@@ -83,4 +83,13 @@ describe('getAdjustmentTotal', () => {
     ];
     expect(getAdjustmentTotal(operations, 'vibrance')).toBe(35);
   });
+
+  it('sums gamma deltas too', () => {
+    const operations: ImageOperation[] = [
+      { type: 'gamma', value: -15 },
+      { type: 'vibrance', value: 10 },
+      { type: 'gamma', value: -5 },
+    ];
+    expect(getAdjustmentTotal(operations, 'gamma')).toBe(-20);
+  });
 });

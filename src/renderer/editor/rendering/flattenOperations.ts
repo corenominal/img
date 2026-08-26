@@ -14,22 +14,26 @@ import type { TintOperation } from '../operations/TintOperation';
 import { applyTint } from '../operations/TintOperation';
 import type { VibranceOperation } from '../operations/VibranceOperation';
 import { applyVibrance } from '../operations/VibranceOperation';
+import type { GammaOperation } from '../operations/GammaOperation';
+import { applyGamma } from '../operations/GammaOperation';
 import type { Size } from '../viewport/viewportTypes';
 
 export type RenderableSource = ImageBitmap | HTMLCanvasElement;
 
 // None of these have a CSS-filter or transform equivalent — each needs a
 // per-pixel read/rewrite, whether luminance-dependent (exposure/
-// highlights/shadows), a flat per-channel shift (temperature/tint), or
-// saturation-dependent (vibrance) — so they share the same "draw, then
-// rewrite pixels in place" render step below.
+// highlights/shadows), a flat per-channel shift (temperature/tint),
+// saturation-dependent (vibrance), or a per-channel power curve (gamma) —
+// so they share the same "draw, then rewrite pixels in place" render step
+// below.
 type PixelOperation =
   | ExposureOperation
   | HighlightsOperation
   | ShadowsOperation
   | TemperatureOperation
   | TintOperation
-  | VibranceOperation;
+  | VibranceOperation
+  | GammaOperation;
 
 function isPixelOperation(operation: ImageOperation): operation is PixelOperation {
   return (
@@ -38,7 +42,8 @@ function isPixelOperation(operation: ImageOperation): operation is PixelOperatio
     operation.type === 'shadows' ||
     operation.type === 'temperature' ||
     operation.type === 'tint' ||
-    operation.type === 'vibrance'
+    operation.type === 'vibrance' ||
+    operation.type === 'gamma'
   );
 }
 
@@ -65,6 +70,9 @@ function applyPixelOperation(
       return;
     case 'vibrance':
       applyVibrance(context, size, operation);
+      return;
+    case 'gamma':
+      applyGamma(context, size, operation);
       return;
   }
 }

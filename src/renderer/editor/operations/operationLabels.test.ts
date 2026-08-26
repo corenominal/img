@@ -67,4 +67,8 @@ describe('getOperationLabel', () => {
   it('labels a vibrance adjustment', () => {
     expect(getOperationLabel({ type: 'vibrance', value: 30 })).toBe('Vibrance');
   });
+
+  it('labels a gamma adjustment', () => {
+    expect(getOperationLabel({ type: 'gamma', value: -20 })).toBe('Gamma');
+  });
 });
