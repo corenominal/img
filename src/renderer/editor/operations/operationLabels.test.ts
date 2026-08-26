@@ -43,4 +43,8 @@ describe('getOperationLabel', () => {
       getOperationLabel({ type: 'resize', width: 400, height: 300, resampling: 'smooth' }),
     ).toBe('Resize');
   });
+
+  it('labels an exposure adjustment', () => {
+    expect(getOperationLabel({ type: 'exposure', value: 40 })).toBe('Exposure');
+  });
 });

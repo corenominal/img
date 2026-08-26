@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from 'react';
-import type { AdjustmentKind } from '../../editor/operations/AdjustmentOperation';
+import type { AdjustmentSliderKind } from '../../editor/operations/adjustmentTotals';
 import { getAdjustmentTotal } from '../../editor/operations/adjustmentTotals';
 import type { ImageOperation } from '../../editor/operations/ImageOperation';
 import { useAdjustmentActions } from '../../hooks/useAdjustmentActions';
@@ -7,7 +7,8 @@ import { useAdjustmentStore } from '../../stores/adjustmentStore';
 import { useDocumentStore } from '../../stores/documentStore';
 import './AdjustPanel.css';
 
-const ADJUSTMENTS: { kind: AdjustmentKind; label: string }[] = [
+const ADJUSTMENTS: { kind: AdjustmentSliderKind; label: string }[] = [
+  { kind: 'exposure', label: 'Exposure' },
   { kind: 'brightness', label: 'Brightness' },
   { kind: 'contrast', label: 'Contrast' },
   { kind: 'saturation', label: 'Saturation' },
@@ -23,7 +24,7 @@ function clamp(value: number): number {
 const EMPTY_OPERATIONS: ImageOperation[] = [];
 
 interface AdjustSliderProps {
-  kind: AdjustmentKind;
+  kind: AdjustmentSliderKind;
   label: string;
 }
 

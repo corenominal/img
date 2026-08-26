@@ -2,6 +2,7 @@ import type { ImageOperation } from '../operations/ImageOperation';
 import { applyGeometricTransform, applyOperationToSize } from '../operations/ImageOperation';
 import { applyAdjustmentFilter, isAdjustmentOperation } from '../operations/AdjustmentOperation';
 import { applyResizeScale } from '../operations/ResizeOperation';
+import { applyExposure } from '../operations/ExposureOperation';
 import type { Size } from '../viewport/viewportTypes';
 
 export type RenderableSource = ImageBitmap | HTMLCanvasElement;
@@ -63,6 +64,9 @@ export function flattenOperations(
     } else if (operation.type === 'resize') {
       applyResizeScale(context, operation);
       context.drawImage(current, 0, 0, nextSize.width, nextSize.height);
+    } else if (operation.type === 'exposure') {
+      context.drawImage(current, 0, 0);
+      applyExposure(context, nextSize, operation);
     } else {
       applyGeometricTransform(context, operation, currentSize);
       context.drawImage(current, 0, 0);

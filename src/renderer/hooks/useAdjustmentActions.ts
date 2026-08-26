@@ -1,12 +1,13 @@
 import { useCallback } from 'react';
-import type { AdjustmentKind } from '../editor/operations/AdjustmentOperation';
+import type { AdjustmentSliderKind } from '../editor/operations/adjustmentTotals';
 import { getAdjustmentTotal } from '../editor/operations/adjustmentTotals';
+import type { ImageOperation } from '../editor/operations/ImageOperation';
 import { useAdjustmentStore } from '../stores/adjustmentStore';
 import { useDocumentStore } from '../stores/documentStore';
 
 interface AdjustmentActions {
-  commit: (kind: AdjustmentKind) => void;
-  reset: (kind: AdjustmentKind) => void;
+  commit: (kind: AdjustmentSliderKind) => void;
+  reset: (kind: AdjustmentSliderKind) => void;
 }
 
 // The slider shows and is dragged as an absolute value, but committed
@@ -20,7 +21,7 @@ export function useAdjustmentActions(): AdjustmentActions {
   const clearActive = useAdjustmentStore((state) => state.clearActive);
 
   const commit = useCallback(
-    (kind: AdjustmentKind) => {
+    (kind: AdjustmentSliderKind) => {
       const targetValue = useAdjustmentStore.getState().active[kind];
       if (targetValue === undefined) {
         return;
@@ -29,7 +30,11 @@ export function useAdjustmentActions(): AdjustmentActions {
       const committedTotal = document ? getAdjustmentTotal(document.operations, kind) : 0;
       const delta = targetValue - committedTotal;
       if (delta !== 0) {
-        applyOperation({ type: kind, value: delta });
+        // AdjustmentSliderKind spans multiple ImageOperation members
+        // (AdjustmentOperation | ExposureOperation), so TS can't verify
+        // this generic `{ type, value }` shape against the discriminated
+        // union on its own — the pairing is guaranteed by construction.
+        applyOperation({ type: kind, value: delta } as ImageOperation);
       }
       clearActive(kind);
     },
@@ -37,11 +42,11 @@ export function useAdjustmentActions(): AdjustmentActions {
   );
 
   const reset = useCallback(
-    (kind: AdjustmentKind) => {
+    (kind: AdjustmentSliderKind) => {
       const { document } = useDocumentStore.getState();
       const committedTotal = document ? getAdjustmentTotal(document.operations, kind) : 0;
       if (committedTotal !== 0) {
-        applyOperation({ type: kind, value: -committedTotal });
+        applyOperation({ type: kind, value: -committedTotal } as ImageOperation);
       }
       clearActive(kind);
     },

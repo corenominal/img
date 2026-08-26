@@ -29,4 +29,13 @@ describe('getAdjustmentTotal', () => {
     expect(getAdjustmentTotal(operations, 'saturation')).toBe(10);
     expect(getAdjustmentTotal(operations, 'contrast')).toBe(0);
   });
+
+  it('sums exposure deltas too, despite exposure rendering differently from the CSS-filter kinds', () => {
+    const operations: ImageOperation[] = [
+      { type: 'exposure', value: 30 },
+      { type: 'brightness', value: 20 },
+      { type: 'exposure', value: -10 },
+    ];
+    expect(getAdjustmentTotal(operations, 'exposure')).toBe(20);
+  });
 });

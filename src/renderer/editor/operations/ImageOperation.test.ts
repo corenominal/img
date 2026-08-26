@@ -46,6 +46,15 @@ describe('applyOperationToSize', () => {
       ),
     ).toEqual({ width: 400, height: 300 });
   });
+
+  it('applies an exposure operation (no size change)', () => {
+    expect(
+      applyOperationToSize({ width: 200, height: 100 }, { type: 'exposure', value: 40 }),
+    ).toEqual({
+      width: 200,
+      height: 100,
+    });
+  });
 });
 
 describe('applyGeometricTransform', () => {
@@ -79,6 +88,7 @@ describe('isImageOperation', () => {
     { type: 'saturation', value: 0 },
     { type: 'resize', width: 100, height: 50, resampling: 'smooth' },
     { type: 'resize', width: 100, height: 50, resampling: 'pixelated' },
+    { type: 'exposure', value: 40 },
   ])('accepts a valid $type operation', (operation) => {
     expect(isImageOperation(operation)).toBe(true);
   });
@@ -98,6 +108,8 @@ describe('isImageOperation', () => {
     { type: 'brightness', value: 'a lot' },
     { type: 'resize', width: 100, height: 50, resampling: 'blurry' },
     { type: 'resize', width: 100, height: 50 },
+    { type: 'exposure', value: 'bright' },
+    { type: 'exposure' },
   ])('rejects %j', (value) => {
     expect(isImageOperation(value)).toBe(false);
   });

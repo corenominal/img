@@ -29,8 +29,25 @@ describe('AdjustPanel', () => {
     useDocumentStore.getState().setDocument(fakeDocument());
     render(<AdjustPanel />);
 
+    expect(screen.getByRole('slider', { name: 'Exposure' })).toHaveValue('0');
+    expect(screen.getByRole('button', { name: 'Reset Exposure' })).toBeDisabled();
     expect(screen.getByRole('slider', { name: 'Brightness' })).toHaveValue('0');
     expect(screen.getByRole('button', { name: 'Reset Brightness' })).toBeDisabled();
+  });
+
+  it('exposure behaves like the CSS-filter-backed adjustments: commits one operation and holds position', () => {
+    useDocumentStore.getState().setDocument(fakeDocument());
+    render(<AdjustPanel />);
+
+    const slider = screen.getByRole('slider', { name: 'Exposure' });
+    fireEvent.change(slider, { target: { value: '40' } });
+    fireEvent.pointerUp(slider);
+
+    expect(useDocumentStore.getState().document?.operations).toEqual([
+      { type: 'exposure', value: 40 },
+    ]);
+    expect(useAdjustmentStore.getState().active).toEqual({});
+    expect(screen.getByRole('slider', { name: 'Exposure' })).toHaveValue('40');
   });
 
   it('reflects an already-committed total on mount, not zero', () => {

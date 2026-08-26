@@ -1,17 +1,17 @@
 import { create } from 'zustand';
-import type { AdjustmentKind } from '../editor/operations/AdjustmentOperation';
+import type { AdjustmentSliderKind } from '../editor/operations/adjustmentTotals';
 
 // Absolute slider positions (-100..100) while a gesture is in progress, one
 // entry per kind currently being dragged/typed into. A kind with no entry
 // here means "not being edited right now" — display its committed total
 // instead (see adjustmentTotals.ts). This never touches document history
 // directly: only useAdjustmentActions.commit() turns it into an operation.
-export type ActiveAdjustmentValues = Partial<Record<AdjustmentKind, number>>;
+export type ActiveAdjustmentValues = Partial<Record<AdjustmentSliderKind, number>>;
 
 interface AdjustmentState {
   active: ActiveAdjustmentValues;
-  setActive: (kind: AdjustmentKind, value: number) => void;
-  clearActive: (kind: AdjustmentKind) => void;
+  setActive: (kind: AdjustmentSliderKind, value: number) => void;
+  clearActive: (kind: AdjustmentSliderKind) => void;
 }
 
 export const useAdjustmentStore = create<AdjustmentState>((set) => ({

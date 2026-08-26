@@ -15,6 +15,8 @@ interface FakeContext {
   filter: string;
   imageSmoothingEnabled: boolean;
   imageSmoothingQuality: string;
+  getImageData: ReturnType<typeof vi.fn>;
+  putImageData: ReturnType<typeof vi.fn>;
 }
 
 describe('flattenOperations', () => {
@@ -31,6 +33,8 @@ describe('flattenOperations', () => {
         filter: 'none',
         imageSmoothingEnabled: true,
         imageSmoothingQuality: 'low',
+        getImageData: vi.fn().mockReturnValue({ data: new Uint8ClampedArray([10, 20, 30, 255]) }),
+        putImageData: vi.fn(),
       };
       contexts.push(context);
       return context as unknown as CanvasRenderingContext2D;
@@ -131,5 +135,18 @@ describe('flattenOperations', () => {
     expect(result.height).toBe(50);
     expect(contexts[0]?.imageSmoothingEnabled).toBe(false);
     expect(contexts[0]?.drawImage).toHaveBeenCalledWith(source, 0, 0, 100, 50);
+  });
+
+  it('draws the source before rewriting pixels for an exposure operation, leaving size unchanged', () => {
+    const source = fakeSource(100, 80);
+    const operations: ImageOperation[] = [{ type: 'exposure', value: 50 }];
+
+    const result = flattenOperations(source, operations) as HTMLCanvasElement;
+
+    expect(result.width).toBe(100);
+    expect(result.height).toBe(80);
+    expect(contexts[0]?.drawImage).toHaveBeenCalledWith(source, 0, 0);
+    expect(contexts[0]?.getImageData).toHaveBeenCalledWith(0, 0, 100, 80);
+    expect(contexts[0]?.putImageData).toHaveBeenCalled();
   });
 });
