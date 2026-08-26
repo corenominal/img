@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { useOpenImage } from './useOpenImage';
 import { useOpenProject } from './useOpenProject';
-import { useSaveProject } from './useSaveProject';
+import { useOpenAtPath } from './useOpenAtPath';
+import { useSaveProject, useSaveProjectAs } from './useSaveProject';
 import { useDocumentStore } from '../stores/documentStore';
 import { useResizeDialogStore } from '../stores/resizeDialogStore';
 import { useExportDialogStore } from '../stores/exportDialogStore';
@@ -13,7 +14,9 @@ import { getRedoLabel, getUndoLabel } from '../editor/document/documentHistoryLa
 export function useEditorMenuBridge(): void {
   const openImage = useOpenImage();
   const openProject = useOpenProject();
+  const openAtPath = useOpenAtPath();
   const saveProject = useSaveProject();
+  const saveProjectAs = useSaveProjectAs();
   const document = useDocumentStore((state) => state.document);
   const history = useDocumentStore((state) => state.history);
 
@@ -30,10 +33,22 @@ export function useEditorMenuBridge(): void {
   }, [openProject]);
 
   useEffect(() => {
+    return window.imageEditor.onFileOpenRequested((filePath) => {
+      void openAtPath(filePath);
+    });
+  }, [openAtPath]);
+
+  useEffect(() => {
     return window.imageEditor.onSaveProjectMenuRequested(() => {
       void saveProject();
     });
   }, [saveProject]);
+
+  useEffect(() => {
+    return window.imageEditor.onSaveProjectAsMenuRequested(() => {
+      void saveProjectAs();
+    });
+  }, [saveProjectAs]);
 
   useEffect(() => {
     return window.imageEditor.onExportImageMenuRequested(() => {

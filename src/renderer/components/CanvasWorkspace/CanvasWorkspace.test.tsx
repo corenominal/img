@@ -1,8 +1,12 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CanvasWorkspace } from './CanvasWorkspace';
 import { useDocumentStore } from '../../stores/documentStore';
+
+function fakeFile(name: string): File {
+  return new File(['fake'], name, { type: 'image/png' });
+}
 
 describe('CanvasWorkspace', () => {
   afterEach(() => {
@@ -50,5 +54,38 @@ describe('CanvasWorkspace', () => {
 
     expect(screen.queryByText('No image open')).not.toBeInTheDocument();
     expect(screen.getByRole('img')).toBeInTheDocument();
+  });
+
+  it('shows a drag-over affordance only while a file is being dragged over it', () => {
+    const { container } = render(<CanvasWorkspace />);
+    const workspace = container.querySelector('.canvas-workspace')!;
+
+    fireEvent.dragOver(workspace, { dataTransfer: { types: ['Files'] } });
+    expect(workspace).toHaveClass('canvas-workspace--drag-over');
+
+    fireEvent.dragLeave(workspace);
+    expect(workspace).not.toHaveClass('canvas-workspace--drag-over');
+  });
+
+  it('resolves a dropped file to a real path and opens it', () => {
+    window.imageEditor.getPathForFile = vi.fn().mockReturnValue('/Users/me/holiday.png');
+    const { container } = render(<CanvasWorkspace />);
+    const workspace = container.querySelector('.canvas-workspace')!;
+    const file = fakeFile('holiday.png');
+
+    fireEvent.drop(workspace, { dataTransfer: { files: [file] } });
+
+    expect(window.imageEditor.getPathForFile).toHaveBeenCalledWith(file);
+    expect(window.imageEditor.openAtPath).toHaveBeenCalledWith('/Users/me/holiday.png');
+    expect(workspace).not.toHaveClass('canvas-workspace--drag-over');
+  });
+
+  it('ignores a drop with no files', () => {
+    const { container } = render(<CanvasWorkspace />);
+    const workspace = container.querySelector('.canvas-workspace')!;
+
+    fireEvent.drop(workspace, { dataTransfer: { files: [] } });
+
+    expect(window.imageEditor.openAtPath).not.toHaveBeenCalled();
   });
 });

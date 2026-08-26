@@ -139,6 +139,24 @@ describe('useEditorMenuBridge', () => {
     await waitFor(() => expect(window.imageEditor.saveProject).toHaveBeenCalled());
   });
 
+  it('routes a save-project-as menu request to the saveProject IPC call', async () => {
+    render(<Harness />);
+    act(() =>
+      useDocumentStore.getState().setDocument({
+        ...fakeDocument(),
+        sourceData: new Uint8Array([1, 2, 3]),
+        sourceMimeType: 'image/png',
+        projectPath: '/tmp/photo.imgedit',
+      }),
+    );
+
+    const onSaveProjectAsMenuRequested = window.imageEditor
+      .onSaveProjectAsMenuRequested as ReturnType<typeof vi.fn>;
+    const handler = onSaveProjectAsMenuRequested.mock.calls[0]?.[0] as () => void;
+    act(() => handler());
+    await waitFor(() => expect(window.imageEditor.saveProject).toHaveBeenCalled());
+  });
+
   it('routes history menu actions to undo/redo', () => {
     render(<Harness />);
     act(() => useDocumentStore.getState().setDocument(fakeDocument()));

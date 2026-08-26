@@ -10,14 +10,38 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    // Registers the .imgedit project format as a file type macOS can
+    // associate with this app (Finder "Open With", double-click, Dock
+    // drag). This only wires the declaration into the packaged app's
+    // Info.plist — Windows/Linux association registration is a
+    // per-installer concern the corresponding makers don't currently
+    // configure. The runtime handling for a file opened this way (macOS
+    // 'open-file', Windows/Linux launch-argument parsing) lives in
+    // src/main/main.ts regardless of whether OS registration is wired up.
+    extendInfo: {
+      CFBundleDocumentTypes: [
+        {
+          CFBundleTypeName: 'Image Editor Project',
+          CFBundleTypeRole: 'Editor',
+          LSItemContentTypes: ['org.corenominal.imageeditor.project'],
+          CFBundleTypeExtensions: ['imgedit'],
+          LSHandlerRank: 'Owner',
+        },
+      ],
+      UTExportedTypeDeclarations: [
+        {
+          UTTypeIdentifier: 'org.corenominal.imageeditor.project',
+          UTTypeDescription: 'Image Editor Project',
+          UTTypeConformsTo: ['public.data', 'public.content'],
+          UTTypeTagSpecification: {
+            'public.filename-extension': ['imgedit'],
+          },
+        },
+      ],
+    },
   },
   rebuildConfig: {},
-  makers: [
-    new MakerSquirrel({}),
-    new MakerZIP({}, ['darwin']),
-    new MakerRpm({}),
-    new MakerDeb({}),
-  ],
+  makers: [new MakerSquirrel({}), new MakerZIP({}, ['darwin']), new MakerRpm({}), new MakerDeb({})],
   plugins: [
     new VitePlugin({
       // `build` can specify multiple entry builds, which can be Main process, Preload scripts, Worker process, etc.

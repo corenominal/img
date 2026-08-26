@@ -39,6 +39,7 @@ export function updateEditorMenuState(state: EditorMenuState): void {
     'resize',
     'export',
     'save-project',
+    'save-project-as',
   ] as const) {
     const item = menu.getMenuItemById(id);
     if (item) {

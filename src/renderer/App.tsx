@@ -2,10 +2,14 @@ import { useEffect } from 'react';
 import { AppShell } from './components/AppShell/AppShell';
 import { usePreferenceStore } from './stores/preferenceStore';
 import { useEditorMenuBridge } from './hooks/useEditorMenuBridge';
+import { useDocumentTitle } from './hooks/useDocumentTitle';
+import { useUnsavedChangesGuard } from './hooks/useUnsavedChangesGuard';
 
 export function App(): React.JSX.Element {
   const theme = usePreferenceStore((state) => state.theme);
   useEditorMenuBridge();
+  useDocumentTitle();
+  useUnsavedChangesGuard();
 
   useEffect(() => {
     const root = window.document.documentElement;

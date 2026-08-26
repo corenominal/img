@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog, Menu } from 'electron';
 import type { MenuItemConstructorOptions } from 'electron';
+import path from 'node:path';
 import { IPC_CHANNELS } from '../../shared/ipc/channels';
 import type {
   HistoryMenuAction,
@@ -38,10 +39,27 @@ const sendImageAction = (window: unknown, action: ImageMenuAction): void =>
 const sendHistoryAction = (window: unknown, action: HistoryMenuAction): void =>
   sendToWindow(window, IPC_CHANNELS.menuHistoryAction, action);
 
+function buildRecentFilesSubmenu(
+  recentFiles: string[],
+  onClearRecentFiles: () => void,
+): MenuItemConstructorOptions[] {
+  if (recentFiles.length === 0) {
+    return [{ label: 'No Recent Files', enabled: false }];
+  }
+  return [
+    ...recentFiles.map((filePath): MenuItemConstructorOptions => ({
+      label: path.basename(filePath),
+      click: (_item, window) => sendToWindow(window, IPC_CHANNELS.fileOpenRequested, filePath),
+    })),
+    { type: 'separator' },
+    { label: 'Clear Recent Files', click: () => onClearRecentFiles() },
+  ];
+}
+
 // Menu items whose enabled state is kept in sync with renderer document/
 // history state (see editorMenuState.ts) start disabled: nothing is open or
 // undoable/redoable until the renderer reports otherwise.
-export function buildApplicationMenu(): Menu {
+export function buildApplicationMenu(recentFiles: string[], onClearRecentFiles: () => void): Menu {
   const template: MenuItemConstructorOptions[] = [
     ...(isMac ? [{ role: 'appMenu' as const }] : []),
     {
@@ -56,13 +74,24 @@ export function buildApplicationMenu(): Menu {
           label: 'Open Project…',
           click: (_item, window) => sendToWindow(window, IPC_CHANNELS.menuOpenProjectRequested),
         },
+        {
+          label: 'Open Recent',
+          submenu: buildRecentFilesSubmenu(recentFiles, onClearRecentFiles),
+        },
         { type: 'separator' },
         {
           id: 'save-project',
-          label: 'Save Project…',
+          label: 'Save Project',
           accelerator: 'CmdOrCtrl+S',
           enabled: false,
           click: (_item, window) => sendToWindow(window, IPC_CHANNELS.menuSaveProjectRequested),
+        },
+        {
+          id: 'save-project-as',
+          label: 'Save Project As…',
+          accelerator: 'CmdOrCtrl+Shift+S',
+          enabled: false,
+          click: (_item, window) => sendToWindow(window, IPC_CHANNELS.menuSaveProjectAsRequested),
         },
         { type: 'separator' },
         {
