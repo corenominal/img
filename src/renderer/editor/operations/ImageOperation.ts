@@ -42,6 +42,45 @@ export function applyOperationToSize(size: Size, operation: ImageOperation): Siz
   }
 }
 
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+// Gate for anything reconstructed from untrusted, on-disk JSON (a loaded
+// project's document.json — see editor/project/). Deliberately mirrors
+// the ImageOperation union case-by-case rather than trusting the caller.
+export function isImageOperation(value: unknown): value is ImageOperation {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+  const candidate = value as Record<string, unknown>;
+  switch (candidate.type) {
+    case 'rotate':
+      return candidate.degrees === 90 || candidate.degrees === 180 || candidate.degrees === 270;
+    case 'flip':
+      return candidate.axis === 'horizontal' || candidate.axis === 'vertical';
+    case 'crop':
+      return (
+        isFiniteNumber(candidate.x) &&
+        isFiniteNumber(candidate.y) &&
+        isFiniteNumber(candidate.width) &&
+        isFiniteNumber(candidate.height)
+      );
+    case 'brightness':
+    case 'contrast':
+    case 'saturation':
+      return isFiniteNumber(candidate.value);
+    case 'resize':
+      return (
+        isFiniteNumber(candidate.width) &&
+        isFiniteNumber(candidate.height) &&
+        (candidate.resampling === 'smooth' || candidate.resampling === 'pixelated')
+      );
+    default:
+      return false;
+  }
+}
+
 // Rotate/flip are pure canvas transforms applied to a full drawImage(source,
 // 0, 0) call. Crop, the colour adjustments, and resize are deliberately
 // excluded: crop needs to control the drawImage call itself (a cropping

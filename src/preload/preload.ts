@@ -12,6 +12,8 @@ const imageEditorApi: ImageEditorApi = {
   }),
   openImage: () => ipcRenderer.invoke(IPC_CHANNELS.openImage),
   exportImage: (request) => ipcRenderer.invoke(IPC_CHANNELS.exportImage, request),
+  saveProject: (request) => ipcRenderer.invoke(IPC_CHANNELS.saveProject, request),
+  openProject: () => ipcRenderer.invoke(IPC_CHANNELS.openProject),
   onOpenImageMenuRequested: (callback) => {
     const listener = (): void => callback();
     ipcRenderer.on(IPC_CHANNELS.menuOpenImageRequested, listener);
@@ -24,6 +26,20 @@ const imageEditorApi: ImageEditorApi = {
     ipcRenderer.on(IPC_CHANNELS.menuExportImageRequested, listener);
     return () => {
       ipcRenderer.removeListener(IPC_CHANNELS.menuExportImageRequested, listener);
+    };
+  },
+  onSaveProjectMenuRequested: (callback) => {
+    const listener = (): void => callback();
+    ipcRenderer.on(IPC_CHANNELS.menuSaveProjectRequested, listener);
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.menuSaveProjectRequested, listener);
+    };
+  },
+  onOpenProjectMenuRequested: (callback) => {
+    const listener = (): void => callback();
+    ipcRenderer.on(IPC_CHANNELS.menuOpenProjectRequested, listener);
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.menuOpenProjectRequested, listener);
     };
   },
   onViewportActionRequested: (callback) => {

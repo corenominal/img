@@ -1,7 +1,12 @@
 import '@testing-library/jest-dom/vitest';
 import { afterEach, beforeEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
-import type { ExportImageResult, OpenImageResult } from '../src/shared/types/imageEditorApi';
+import type {
+  ExportImageResult,
+  OpenImageResult,
+  OpenProjectResult,
+  SaveProjectResult,
+} from '../src/shared/types/imageEditorApi';
 
 // jsdom does not implement ResizeObserver.
 class ResizeObserverStub {
@@ -32,8 +37,12 @@ beforeEach(() => {
     getVersions: vi.fn(() => ({ chrome: '0', node: '0', electron: '0' })),
     openImage: vi.fn(async (): Promise<OpenImageResult> => ({ status: 'cancelled' })),
     exportImage: vi.fn(async (): Promise<ExportImageResult> => ({ status: 'cancelled' })),
+    saveProject: vi.fn(async (): Promise<SaveProjectResult> => ({ status: 'cancelled' })),
+    openProject: vi.fn(async (): Promise<OpenProjectResult> => ({ status: 'cancelled' })),
     onOpenImageMenuRequested: vi.fn(() => () => {}),
     onExportImageMenuRequested: vi.fn(() => () => {}),
+    onSaveProjectMenuRequested: vi.fn(() => () => {}),
+    onOpenProjectMenuRequested: vi.fn(() => () => {}),
     onViewportActionRequested: vi.fn(() => () => {}),
     onImageActionRequested: vi.fn(() => () => {}),
     onHistoryActionRequested: vi.fn(() => () => {}),

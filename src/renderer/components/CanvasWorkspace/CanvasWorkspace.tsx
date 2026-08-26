@@ -7,21 +7,21 @@ import './CanvasWorkspace.css';
 
 export function CanvasWorkspace(): React.JSX.Element {
   const activeDocument = useDocumentStore((state) => state.document);
-  const openError = useDocumentStore((state) => state.openError);
-  const setOpenError = useDocumentStore((state) => state.setOpenError);
+  const documentError = useDocumentStore((state) => state.documentError);
+  const setDocumentError = useDocumentStore((state) => state.setDocumentError);
   const activeTool = useEditorStore((state) => state.activeTool);
   const openImage = useOpenImage();
 
   return (
     <div className="canvas-workspace">
-      {openError && (
+      {documentError && (
         <div role="alert" className="canvas-workspace__error">
-          <p>{openError}</p>
+          <p>{documentError}</p>
           <button
             type="button"
             className="canvas-workspace__error-dismiss"
             aria-label="Dismiss error"
-            onClick={() => setOpenError(null)}
+            onClick={() => setDocumentError(null)}
           >
             ×
           </button>
@@ -31,7 +31,9 @@ export function CanvasWorkspace(): React.JSX.Element {
         <>
           <ImageCanvas document={activeDocument} />
           {activeTool === 'crop' && (
-            <CropOverlay imageSize={{ width: activeDocument.width, height: activeDocument.height }} />
+            <CropOverlay
+              imageSize={{ width: activeDocument.width, height: activeDocument.height }}
+            />
           )}
         </>
       ) : (

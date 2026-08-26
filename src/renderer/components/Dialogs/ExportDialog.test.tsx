@@ -35,7 +35,7 @@ function fakeDocument(overrides: Partial<ImageDocument> = {}): ImageDocument {
 describe('ExportDialog', () => {
   afterEach(() => {
     useExportDialogStore.setState({ isOpen: false });
-    useDocumentStore.setState({ document: null, history: null, openError: null });
+    useDocumentStore.setState({ document: null, history: null, documentError: null });
     vi.mocked(renderDocumentToBlob).mockReset();
   });
 

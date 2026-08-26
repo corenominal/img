@@ -3,39 +3,48 @@ import type { ImageDocument } from '../editor/document/documentTypes';
 import type { ImageOperation } from '../editor/operations/ImageOperation';
 import { applyOperationToSize } from '../editor/operations/ImageOperation';
 import type { HistoryState } from '../editor/history/historyTypes';
-import { createHistory, pushHistory, redoHistory, undoHistory } from '../editor/history/HistoryManager';
+import {
+  createHistory,
+  pushHistory,
+  redoHistory,
+  undoHistory,
+} from '../editor/history/HistoryManager';
 
 interface DocumentState {
   document: ImageDocument | null;
-  openError: string | null;
+  documentError: string | null;
   history: HistoryState<ImageDocument> | null;
   setDocument: (document: ImageDocument) => void;
-  setOpenError: (message: string | null) => void;
+  setDocumentError: (message: string | null) => void;
   applyOperation: (operation: ImageOperation) => void;
   undo: () => void;
   redo: () => void;
+  markProjectSaved: (filePath: string) => void;
 }
 
 export const useDocumentStore = create<DocumentState>((set, get) => ({
   document: null,
-  openError: null,
+  documentError: null,
   history: null,
 
   setDocument: (document) => {
     // Release the previous bitmap's underlying image data immediately
     // rather than waiting for garbage collection.
     get().document?.source.close();
-    set({ document, openError: null, history: createHistory(document) });
+    set({ document, documentError: null, history: createHistory(document) });
   },
 
-  setOpenError: (message) => set({ openError: message }),
+  setDocumentError: (message) => set({ documentError: message }),
 
   applyOperation: (operation) => {
     const { document, history } = get();
     if (!document || !history) {
       return;
     }
-    const size = applyOperationToSize({ width: document.width, height: document.height }, operation);
+    const size = applyOperationToSize(
+      { width: document.width, height: document.height },
+      operation,
+    );
     const next: ImageDocument = {
       ...document,
       operations: [...document.operations, operation],
@@ -62,5 +71,19 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
     }
     const nextHistory = redoHistory(history);
     set({ history: nextHistory, document: nextHistory.present });
+  },
+
+  // Records a successful save on the *current* snapshot only — not a new
+  // history entry. Older/newer entries in past/future keep whatever dirty
+  // value they already had, which stays correct: they genuinely differ
+  // from what's now on disk, so they should still read as dirty if
+  // undo/redo lands back on them.
+  markProjectSaved: (filePath) => {
+    const { document, history } = get();
+    if (!document || !history) {
+      return;
+    }
+    const saved: ImageDocument = { ...document, dirty: false, projectPath: filePath };
+    set({ document: saved, history: { ...history, present: saved } });
   },
 }));

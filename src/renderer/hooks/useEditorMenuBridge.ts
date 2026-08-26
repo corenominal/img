@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { useOpenImage } from './useOpenImage';
+import { useOpenProject } from './useOpenProject';
+import { useSaveProject } from './useSaveProject';
 import { useDocumentStore } from '../stores/documentStore';
 import { useResizeDialogStore } from '../stores/resizeDialogStore';
 import { useExportDialogStore } from '../stores/exportDialogStore';
@@ -10,6 +12,8 @@ import { getRedoLabel, getUndoLabel } from '../editor/document/documentHistoryLa
 // history state keeps the menu's enabled state in sync.
 export function useEditorMenuBridge(): void {
   const openImage = useOpenImage();
+  const openProject = useOpenProject();
+  const saveProject = useSaveProject();
   const document = useDocumentStore((state) => state.document);
   const history = useDocumentStore((state) => state.history);
 
@@ -18,6 +22,18 @@ export function useEditorMenuBridge(): void {
       void openImage();
     });
   }, [openImage]);
+
+  useEffect(() => {
+    return window.imageEditor.onOpenProjectMenuRequested(() => {
+      void openProject();
+    });
+  }, [openProject]);
+
+  useEffect(() => {
+    return window.imageEditor.onSaveProjectMenuRequested(() => {
+      void saveProject();
+    });
+  }, [saveProject]);
 
   useEffect(() => {
     return window.imageEditor.onExportImageMenuRequested(() => {

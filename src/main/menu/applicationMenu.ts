@@ -52,6 +52,18 @@ export function buildApplicationMenu(): Menu {
           accelerator: 'CmdOrCtrl+O',
           click: (_item, window) => sendToWindow(window, IPC_CHANNELS.menuOpenImageRequested),
         },
+        {
+          label: 'Open Project…',
+          click: (_item, window) => sendToWindow(window, IPC_CHANNELS.menuOpenProjectRequested),
+        },
+        { type: 'separator' },
+        {
+          id: 'save-project',
+          label: 'Save Project…',
+          accelerator: 'CmdOrCtrl+S',
+          enabled: false,
+          click: (_item, window) => sendToWindow(window, IPC_CHANNELS.menuSaveProjectRequested),
+        },
         { type: 'separator' },
         {
           id: 'export',

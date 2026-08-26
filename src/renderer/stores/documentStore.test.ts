@@ -18,17 +18,17 @@ function fakeDocument(overrides: Partial<ImageDocument> = {}): ImageDocument {
 
 describe('documentStore', () => {
   afterEach(() => {
-    useDocumentStore.setState({ document: null, openError: null, history: null });
+    useDocumentStore.setState({ document: null, documentError: null, history: null });
   });
 
   it('sets the document and clears any open error', () => {
-    useDocumentStore.setState({ openError: 'previous error' });
+    useDocumentStore.setState({ documentError: 'previous error' });
     const document = fakeDocument();
 
     useDocumentStore.getState().setDocument(document);
 
     expect(useDocumentStore.getState().document).toBe(document);
-    expect(useDocumentStore.getState().openError).toBeNull();
+    expect(useDocumentStore.getState().documentError).toBeNull();
   });
 
   it('closes the previous bitmap when replaced by a new document', () => {
@@ -43,8 +43,8 @@ describe('documentStore', () => {
   });
 
   it('records an open error message', () => {
-    useDocumentStore.getState().setOpenError('Something went wrong');
-    expect(useDocumentStore.getState().openError).toBe('Something went wrong');
+    useDocumentStore.getState().setDocumentError('Something went wrong');
+    expect(useDocumentStore.getState().documentError).toBe('Something went wrong');
   });
 
   it('starts a fresh history baseline when a document is opened', () => {
@@ -87,7 +87,9 @@ describe('documentStore', () => {
 
     it('sets dimensions directly from a crop operation, independent of the prior size', () => {
       useDocumentStore.getState().setDocument(fakeDocument());
-      useDocumentStore.getState().applyOperation({ type: 'crop', x: 20, y: 10, width: 60, height: 45 });
+      useDocumentStore
+        .getState()
+        .applyOperation({ type: 'crop', x: 20, y: 10, width: 60, height: 45 });
 
       const { document } = useDocumentStore.getState();
       expect(document?.width).toBe(60);
@@ -185,12 +187,57 @@ describe('documentStore', () => {
       useDocumentStore.getState().applyOperation({ type: 'flip', axis: 'vertical' });
 
       const { document, history } = useDocumentStore.getState();
-      expect(document?.operations).toEqual([{ type: 'rotate', degrees: 90 }, { type: 'flip', axis: 'vertical' }]);
+      expect(document?.operations).toEqual([
+        { type: 'rotate', degrees: 90 },
+        { type: 'flip', axis: 'vertical' },
+      ]);
       expect(history?.future).toHaveLength(0);
 
       // The old redo target (the second rotate) is gone, not reachable.
       useDocumentStore.getState().redo();
       expect(useDocumentStore.getState().document).toBe(document);
+    });
+  });
+
+  describe('markProjectSaved', () => {
+    it('clears dirty and records the project path on the current document', () => {
+      useDocumentStore.getState().setDocument(fakeDocument());
+      useDocumentStore.getState().applyOperation({ type: 'rotate', degrees: 90 });
+      expect(useDocumentStore.getState().document?.dirty).toBe(true);
+
+      useDocumentStore.getState().markProjectSaved('/tmp/photo.imgedit');
+
+      const { document, history } = useDocumentStore.getState();
+      expect(document?.dirty).toBe(false);
+      expect(document?.projectPath).toBe('/tmp/photo.imgedit');
+      expect(history?.present).toBe(document);
+    });
+
+    it('does not create a new history entry', () => {
+      useDocumentStore.getState().setDocument(fakeDocument());
+      useDocumentStore.getState().applyOperation({ type: 'rotate', degrees: 90 });
+      const pastLength = useDocumentStore.getState().history?.past.length;
+
+      useDocumentStore.getState().markProjectSaved('/tmp/photo.imgedit');
+
+      expect(useDocumentStore.getState().history?.past.length).toBe(pastLength);
+    });
+
+    it('a later edit is dirty again, but undoing back to the saved snapshot reads clean', () => {
+      useDocumentStore.getState().setDocument(fakeDocument());
+      useDocumentStore.getState().applyOperation({ type: 'rotate', degrees: 90 });
+      useDocumentStore.getState().markProjectSaved('/tmp/photo.imgedit');
+
+      useDocumentStore.getState().applyOperation({ type: 'flip', axis: 'horizontal' });
+      expect(useDocumentStore.getState().document?.dirty).toBe(true);
+
+      useDocumentStore.getState().undo();
+      expect(useDocumentStore.getState().document?.dirty).toBe(false);
+    });
+
+    it('does nothing when no document is open', () => {
+      useDocumentStore.getState().markProjectSaved('/tmp/photo.imgedit');
+      expect(useDocumentStore.getState().document).toBeNull();
     });
   });
 });

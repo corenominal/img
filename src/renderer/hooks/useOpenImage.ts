@@ -7,7 +7,7 @@ const DECODE_ERROR_MESSAGE =
 
 export function useOpenImage(): () => Promise<void> {
   const setDocument = useDocumentStore((state) => state.setDocument);
-  const setOpenError = useDocumentStore((state) => state.setOpenError);
+  const setDocumentError = useDocumentStore((state) => state.setDocumentError);
 
   return useCallback(async () => {
     const result = await window.imageEditor.openImage();
@@ -17,7 +17,7 @@ export function useOpenImage(): () => Promise<void> {
     }
 
     if (result.status === 'error') {
-      setOpenError(result.message);
+      setDocumentError(result.message);
       return;
     }
 
@@ -30,11 +30,13 @@ export function useOpenImage(): () => Promise<void> {
           filename: result.fileName,
           sourcePath: result.filePath,
           source,
+          sourceData: bytes,
+          sourceMimeType: result.mimeType,
         }),
       );
     } catch (error) {
       console.error('Failed to decode image', error);
-      setOpenError(DECODE_ERROR_MESSAGE);
+      setDocumentError(DECODE_ERROR_MESSAGE);
     }
-  }, [setDocument, setOpenError]);
+  }, [setDocument, setDocumentError]);
 }

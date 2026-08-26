@@ -22,7 +22,7 @@ function fakeDocument(): ImageDocument {
 describe('useCropActions', () => {
   afterEach(() => {
     useCropStore.setState({ rect: null, aspectRatio: 'free' });
-    useDocumentStore.setState({ document: null, history: null, openError: null });
+    useDocumentStore.setState({ document: null, history: null, documentError: null });
     useEditorStore.setState({ activeTool: 'move' });
   });
 

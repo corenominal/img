@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { applyGeometricTransform, applyOperationToSize } from './ImageOperation';
+import { applyGeometricTransform, applyOperationToSize, isImageOperation } from './ImageOperation';
 
 describe('applyOperationToSize', () => {
   it('applies a rotate operation', () => {
@@ -63,5 +63,42 @@ describe('applyGeometricTransform', () => {
       { width: 200, height: 100 },
     );
     expect(context.scale).toHaveBeenCalledWith(-1, 1);
+  });
+});
+
+describe('isImageOperation', () => {
+  it.each([
+    { type: 'rotate', degrees: 90 },
+    { type: 'rotate', degrees: 180 },
+    { type: 'rotate', degrees: 270 },
+    { type: 'flip', axis: 'horizontal' },
+    { type: 'flip', axis: 'vertical' },
+    { type: 'crop', x: 0, y: 0, width: 10, height: 10 },
+    { type: 'brightness', value: 20 },
+    { type: 'contrast', value: -10 },
+    { type: 'saturation', value: 0 },
+    { type: 'resize', width: 100, height: 50, resampling: 'smooth' },
+    { type: 'resize', width: 100, height: 50, resampling: 'pixelated' },
+  ])('accepts a valid $type operation', (operation) => {
+    expect(isImageOperation(operation)).toBe(true);
+  });
+
+  it.each([
+    null,
+    undefined,
+    42,
+    'rotate',
+    {},
+    { type: 'teleport' },
+    { type: 'rotate', degrees: 45 },
+    { type: 'rotate' },
+    { type: 'flip', axis: 'diagonal' },
+    { type: 'crop', x: 0, y: 0, width: 10 },
+    { type: 'crop', x: 0, y: 0, width: '10', height: 10 },
+    { type: 'brightness', value: 'a lot' },
+    { type: 'resize', width: 100, height: 50, resampling: 'blurry' },
+    { type: 'resize', width: 100, height: 50 },
+  ])('rejects %j', (value) => {
+    expect(isImageOperation(value)).toBe(false);
   });
 });

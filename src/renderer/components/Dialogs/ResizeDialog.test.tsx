@@ -22,7 +22,7 @@ function fakeDocument(overrides: Partial<ImageDocument> = {}): ImageDocument {
 describe('ResizeDialog', () => {
   afterEach(() => {
     useResizeDialogStore.setState({ isOpen: false });
-    useDocumentStore.setState({ document: null, history: null, openError: null });
+    useDocumentStore.setState({ document: null, history: null, documentError: null });
   });
 
   it('renders no form fields while closed', () => {

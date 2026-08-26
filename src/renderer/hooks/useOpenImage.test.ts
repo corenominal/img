@@ -9,7 +9,7 @@ function mockOpenImage(result: Awaited<ReturnType<typeof window.imageEditor.open
 
 describe('useOpenImage', () => {
   afterEach(() => {
-    useDocumentStore.setState({ document: null, openError: null });
+    useDocumentStore.setState({ document: null, documentError: null });
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
@@ -21,7 +21,7 @@ describe('useOpenImage', () => {
     await result.current();
 
     expect(useDocumentStore.getState().document).toBeNull();
-    expect(useDocumentStore.getState().openError).toBeNull();
+    expect(useDocumentStore.getState().documentError).toBeNull();
   });
 
   it('records a friendly error when the main process reports one', async () => {
@@ -30,7 +30,7 @@ describe('useOpenImage', () => {
 
     await result.current();
 
-    expect(useDocumentStore.getState().openError).toBe('The image could not be opened.');
+    expect(useDocumentStore.getState().documentError).toBe('The image could not be opened.');
   });
 
   it('creates a document from a successfully opened image', async () => {
@@ -42,10 +42,7 @@ describe('useOpenImage', () => {
       data: new Uint8Array([1, 2, 3]),
     });
     const fakeBitmap = { width: 800, height: 600, close: vi.fn() };
-    vi.stubGlobal(
-      'createImageBitmap',
-      vi.fn().mockResolvedValue(fakeBitmap),
-    );
+    vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue(fakeBitmap));
 
     const { result } = renderHook(() => useOpenImage());
     await result.current();
@@ -57,6 +54,8 @@ describe('useOpenImage', () => {
     expect(document?.filename).toBe('photo.png');
     expect(document?.width).toBe(800);
     expect(document?.height).toBe(600);
+    expect(document?.sourceData).toEqual(new Uint8Array([1, 2, 3]));
+    expect(document?.sourceMimeType).toBe('image/png');
   });
 
   it('shows a friendly error when the image fails to decode', async () => {
@@ -68,15 +67,12 @@ describe('useOpenImage', () => {
       mimeType: 'image/png',
       data: new Uint8Array([1, 2, 3]),
     });
-    vi.stubGlobal(
-      'createImageBitmap',
-      vi.fn().mockRejectedValue(new Error('decode failed')),
-    );
+    vi.stubGlobal('createImageBitmap', vi.fn().mockRejectedValue(new Error('decode failed')));
 
     const { result } = renderHook(() => useOpenImage());
     await result.current();
 
-    expect(useDocumentStore.getState().openError).toBe(
+    expect(useDocumentStore.getState().documentError).toBe(
       'The image could not be opened. The file may be damaged or use an unsupported format.',
     );
   });

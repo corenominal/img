@@ -6,7 +6,7 @@ import { useDocumentStore } from '../../stores/documentStore';
 
 describe('CanvasWorkspace', () => {
   afterEach(() => {
-    useDocumentStore.setState({ document: null, openError: null });
+    useDocumentStore.setState({ document: null, documentError: null });
   });
 
   it('shows the empty state and requests an image when clicked', async () => {
@@ -20,7 +20,7 @@ describe('CanvasWorkspace', () => {
   });
 
   it('shows a dismissible error banner when opening fails', async () => {
-    useDocumentStore.setState({ openError: 'The image could not be opened.' });
+    useDocumentStore.setState({ documentError: 'The image could not be opened.' });
     const user = userEvent.setup();
     render(<CanvasWorkspace />);
 
@@ -28,7 +28,7 @@ describe('CanvasWorkspace', () => {
 
     await user.click(screen.getByRole('button', { name: 'Dismiss error' }));
 
-    expect(useDocumentStore.getState().openError).toBeNull();
+    expect(useDocumentStore.getState().documentError).toBeNull();
   });
 
   it('renders the image canvas when a document is open', () => {

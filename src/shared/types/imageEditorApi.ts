@@ -45,6 +45,48 @@ export interface ExportImageError {
 
 export type ExportImageResult = ExportImageSuccess | ExportImageCancelled | ExportImageError;
 
+export interface SaveProjectRequest {
+  // Already-packed .imgedit archive bytes, produced in the renderer (see
+  // editor/project/packProject.ts) — the main process only writes them to
+  // disk.
+  data: Uint8Array;
+  // Filename without an extension; the main process appends .imgedit.
+  suggestedFileName: string;
+}
+
+export interface SaveProjectSuccess {
+  status: 'saved';
+  filePath: string;
+}
+
+export interface SaveProjectCancelled {
+  status: 'cancelled';
+}
+
+export interface SaveProjectError {
+  status: 'error';
+  message: string;
+}
+
+export type SaveProjectResult = SaveProjectSuccess | SaveProjectCancelled | SaveProjectError;
+
+export interface OpenProjectSuccess {
+  status: 'opened';
+  filePath: string;
+  data: Uint8Array;
+}
+
+export interface OpenProjectCancelled {
+  status: 'cancelled';
+}
+
+export interface OpenProjectError {
+  status: 'error';
+  message: string;
+}
+
+export type OpenProjectResult = OpenProjectSuccess | OpenProjectCancelled | OpenProjectError;
+
 export type ViewportMenuAction = 'zoom-in' | 'zoom-out' | 'actual-size' | 'fit-to-window';
 
 export type ImageMenuAction =
@@ -68,8 +110,12 @@ export interface ImageEditorApi {
   };
   openImage: () => Promise<OpenImageResult>;
   exportImage: (request: ExportImageRequest) => Promise<ExportImageResult>;
+  saveProject: (request: SaveProjectRequest) => Promise<SaveProjectResult>;
+  openProject: () => Promise<OpenProjectResult>;
   onOpenImageMenuRequested: (callback: () => void) => () => void;
   onExportImageMenuRequested: (callback: () => void) => () => void;
+  onSaveProjectMenuRequested: (callback: () => void) => () => void;
+  onOpenProjectMenuRequested: (callback: () => void) => () => void;
   onViewportActionRequested: (callback: (action: ViewportMenuAction) => void) => () => void;
   onImageActionRequested: (callback: (action: ImageMenuAction) => void) => () => void;
   onHistoryActionRequested: (callback: (action: HistoryMenuAction) => void) => () => void;

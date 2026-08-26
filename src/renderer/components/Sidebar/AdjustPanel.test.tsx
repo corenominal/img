@@ -22,7 +22,7 @@ function fakeDocument(overrides: Partial<ImageDocument> = {}): ImageDocument {
 describe('AdjustPanel', () => {
   afterEach(() => {
     useAdjustmentStore.setState({ active: {} });
-    useDocumentStore.setState({ document: null, history: null, openError: null });
+    useDocumentStore.setState({ document: null, history: null, documentError: null });
   });
 
   it('starts every control at a neutral value with reset disabled', () => {

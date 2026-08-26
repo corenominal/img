@@ -22,7 +22,7 @@ function fakeDocument(overrides: Partial<ImageDocument> = {}): ImageDocument {
 describe('useAdjustmentActions', () => {
   afterEach(() => {
     useAdjustmentStore.setState({ active: {} });
-    useDocumentStore.setState({ document: null, history: null, openError: null });
+    useDocumentStore.setState({ document: null, history: null, documentError: null });
   });
 
   it('commit pushes the value as one operation (from a zero committed total) and clears the active slot', () => {
