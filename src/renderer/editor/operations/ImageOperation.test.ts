@@ -89,6 +89,15 @@ describe('applyOperationToSize', () => {
       height: 100,
     });
   });
+
+  it('applies a vibrance operation (no size change)', () => {
+    expect(
+      applyOperationToSize({ width: 200, height: 100 }, { type: 'vibrance', value: 30 }),
+    ).toEqual({
+      width: 200,
+      height: 100,
+    });
+  });
 });
 
 describe('applyGeometricTransform', () => {
@@ -127,6 +136,7 @@ describe('isImageOperation', () => {
     { type: 'shadows', value: 30 },
     { type: 'temperature', value: -40 },
     { type: 'tint', value: 25 },
+    { type: 'vibrance', value: 30 },
   ])('accepts a valid $type operation', (operation) => {
     expect(isImageOperation(operation)).toBe(true);
   });
@@ -156,6 +166,8 @@ describe('isImageOperation', () => {
     { type: 'temperature' },
     { type: 'tint', value: 'cool' },
     { type: 'tint' },
+    { type: 'vibrance', value: 'more' },
+    { type: 'vibrance' },
   ])('rejects %j', (value) => {
     expect(isImageOperation(value)).toBe(false);
   });

@@ -19,6 +19,8 @@ import type { TemperatureOperation } from './TemperatureOperation';
 import { temperatureSize } from './TemperatureOperation';
 import type { TintOperation } from './TintOperation';
 import { tintSize } from './TintOperation';
+import type { VibranceOperation } from './VibranceOperation';
+import { vibranceSize } from './VibranceOperation';
 
 export type { RotateOperation } from './RotateOperation';
 export type { FlipOperation } from './FlipOperation';
@@ -30,6 +32,7 @@ export type { HighlightsOperation } from './HighlightsOperation';
 export type { ShadowsOperation } from './ShadowsOperation';
 export type { TemperatureOperation } from './TemperatureOperation';
 export type { TintOperation } from './TintOperation';
+export type { VibranceOperation } from './VibranceOperation';
 
 export type ImageOperation =
   | RotateOperation
@@ -41,7 +44,8 @@ export type ImageOperation =
   | HighlightsOperation
   | ShadowsOperation
   | TemperatureOperation
-  | TintOperation;
+  | TintOperation
+  | VibranceOperation;
 
 export function assertExhaustive(value: never): never {
   throw new Error(`Unhandled image operation: ${JSON.stringify(value)}`);
@@ -71,6 +75,8 @@ export function applyOperationToSize(size: Size, operation: ImageOperation): Siz
       return temperatureSize(size);
     case 'tint':
       return tintSize(size);
+    case 'vibrance':
+      return vibranceSize(size);
     default:
       return assertExhaustive(operation);
   }
@@ -115,6 +121,7 @@ export function isImageOperation(value: unknown): value is ImageOperation {
     case 'shadows':
     case 'temperature':
     case 'tint':
+    case 'vibrance':
       return isFiniteNumber(candidate.value);
     default:
       return false;
@@ -123,13 +130,13 @@ export function isImageOperation(value: unknown): value is ImageOperation {
 
 // Rotate/flip are pure canvas transforms applied to a full drawImage(source,
 // 0, 0) call. Crop, the colour adjustments, resize, exposure, highlights,
-// shadows, temperature and tint are deliberately excluded: crop needs to
-// control the drawImage call itself (a cropping source-rect) rather than
-// pre-apply a transform, adjustments apply a canvas `filter` instead of a
-// transform, resize scales the destination rect of drawImage, and
-// exposure/highlights/shadows/temperature/tint rewrite pixels directly (no
-// canvas-native filter covers a per-channel or luminance-dependent
-// adjustment) — see flattenOperations.ts.
+// shadows, temperature, tint and vibrance are deliberately excluded: crop
+// needs to control the drawImage call itself (a cropping source-rect)
+// rather than pre-apply a transform, adjustments apply a canvas `filter`
+// instead of a transform, resize scales the destination rect of drawImage,
+// and exposure/highlights/shadows/temperature/tint/vibrance rewrite pixels
+// directly (no canvas-native filter covers a per-channel, luminance- or
+// saturation-dependent adjustment) — see flattenOperations.ts.
 export function applyGeometricTransform(
   context: CanvasRenderingContext2D,
   operation: RotateOperation | FlipOperation,

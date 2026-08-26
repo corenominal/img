@@ -37,6 +37,8 @@ export function getOperationLabel(operation: ImageOperation): string {
       return 'Temperature';
     case 'tint':
       return 'Tint';
+    case 'vibrance':
+      return 'Vibrance';
     default:
       return assertExhaustive(operation);
   }

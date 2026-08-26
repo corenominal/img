@@ -63,4 +63,8 @@ describe('getOperationLabel', () => {
   it('labels a tint adjustment', () => {
     expect(getOperationLabel({ type: 'tint', value: 25 })).toBe('Tint');
   });
+
+  it('labels a vibrance adjustment', () => {
+    expect(getOperationLabel({ type: 'vibrance', value: 30 })).toBe('Vibrance');
+  });
 });

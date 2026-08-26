@@ -13,6 +13,7 @@ const ADJUSTMENTS: { kind: AdjustmentSliderKind; label: string }[] = [
   { kind: 'shadows', label: 'Shadows' },
   { kind: 'temperature', label: 'Temperature' },
   { kind: 'tint', label: 'Tint' },
+  { kind: 'vibrance', label: 'Vibrance' },
   { kind: 'brightness', label: 'Brightness' },
   { kind: 'contrast', label: 'Contrast' },
   { kind: 'saturation', label: 'Saturation' },

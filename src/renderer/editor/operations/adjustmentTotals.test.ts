@@ -74,4 +74,13 @@ describe('getAdjustmentTotal', () => {
     ];
     expect(getAdjustmentTotal(operations, 'tint')).toBe(25);
   });
+
+  it('sums vibrance deltas too', () => {
+    const operations: ImageOperation[] = [
+      { type: 'vibrance', value: 15 },
+      { type: 'tint', value: -10 },
+      { type: 'vibrance', value: 20 },
+    ];
+    expect(getAdjustmentTotal(operations, 'vibrance')).toBe(35);
+  });
 });

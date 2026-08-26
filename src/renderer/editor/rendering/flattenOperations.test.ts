@@ -201,4 +201,17 @@ describe('flattenOperations', () => {
     expect(contexts[0]?.getImageData).toHaveBeenCalledWith(0, 0, 100, 80);
     expect(contexts[0]?.putImageData).toHaveBeenCalled();
   });
+
+  it('draws the source before rewriting pixels for a vibrance operation, leaving size unchanged', () => {
+    const source = fakeSource(100, 80);
+    const operations: ImageOperation[] = [{ type: 'vibrance', value: 30 }];
+
+    const result = flattenOperations(source, operations) as HTMLCanvasElement;
+
+    expect(result.width).toBe(100);
+    expect(result.height).toBe(80);
+    expect(contexts[0]?.drawImage).toHaveBeenCalledWith(source, 0, 0);
+    expect(contexts[0]?.getImageData).toHaveBeenCalledWith(0, 0, 100, 80);
+    expect(contexts[0]?.putImageData).toHaveBeenCalled();
+  });
 });

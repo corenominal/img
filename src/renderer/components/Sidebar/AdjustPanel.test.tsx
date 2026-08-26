@@ -39,6 +39,8 @@ describe('AdjustPanel', () => {
     expect(screen.getByRole('button', { name: 'Reset Temperature' })).toBeDisabled();
     expect(screen.getByRole('slider', { name: 'Tint' })).toHaveValue('0');
     expect(screen.getByRole('button', { name: 'Reset Tint' })).toBeDisabled();
+    expect(screen.getByRole('slider', { name: 'Vibrance' })).toHaveValue('0');
+    expect(screen.getByRole('button', { name: 'Reset Vibrance' })).toBeDisabled();
     expect(screen.getByRole('slider', { name: 'Brightness' })).toHaveValue('0');
     expect(screen.getByRole('button', { name: 'Reset Brightness' })).toBeDisabled();
   });
@@ -114,6 +116,21 @@ describe('AdjustPanel', () => {
     expect(useDocumentStore.getState().document?.operations).toEqual([{ type: 'tint', value: 25 }]);
     expect(useAdjustmentStore.getState().active).toEqual({});
     expect(screen.getByRole('slider', { name: 'Tint' })).toHaveValue('25');
+  });
+
+  it('vibrance behaves like the other pixel-based adjustments: commits one operation and holds position', () => {
+    useDocumentStore.getState().setDocument(fakeDocument());
+    render(<AdjustPanel />);
+
+    const slider = screen.getByRole('slider', { name: 'Vibrance' });
+    fireEvent.change(slider, { target: { value: '30' } });
+    fireEvent.pointerUp(slider);
+
+    expect(useDocumentStore.getState().document?.operations).toEqual([
+      { type: 'vibrance', value: 30 },
+    ]);
+    expect(useAdjustmentStore.getState().active).toEqual({});
+    expect(screen.getByRole('slider', { name: 'Vibrance' })).toHaveValue('30');
   });
 
   it('reflects an already-committed total on mount, not zero', () => {
