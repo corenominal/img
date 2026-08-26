@@ -55,4 +55,12 @@ describe('getOperationLabel', () => {
   it('labels a shadows adjustment', () => {
     expect(getOperationLabel({ type: 'shadows', value: 30 })).toBe('Shadows');
   });
+
+  it('labels a temperature adjustment', () => {
+    expect(getOperationLabel({ type: 'temperature', value: -40 })).toBe('Temperature');
+  });
+
+  it('labels a tint adjustment', () => {
+    expect(getOperationLabel({ type: 'tint', value: 25 })).toBe('Tint');
+  });
 });

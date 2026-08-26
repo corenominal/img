@@ -15,6 +15,10 @@ import type { HighlightsOperation } from './HighlightsOperation';
 import { highlightsSize } from './HighlightsOperation';
 import type { ShadowsOperation } from './ShadowsOperation';
 import { shadowsSize } from './ShadowsOperation';
+import type { TemperatureOperation } from './TemperatureOperation';
+import { temperatureSize } from './TemperatureOperation';
+import type { TintOperation } from './TintOperation';
+import { tintSize } from './TintOperation';
 
 export type { RotateOperation } from './RotateOperation';
 export type { FlipOperation } from './FlipOperation';
@@ -24,6 +28,8 @@ export type { ResizeOperation, ResamplingMethod } from './ResizeOperation';
 export type { ExposureOperation } from './ExposureOperation';
 export type { HighlightsOperation } from './HighlightsOperation';
 export type { ShadowsOperation } from './ShadowsOperation';
+export type { TemperatureOperation } from './TemperatureOperation';
+export type { TintOperation } from './TintOperation';
 
 export type ImageOperation =
   | RotateOperation
@@ -33,7 +39,9 @@ export type ImageOperation =
   | ResizeOperation
   | ExposureOperation
   | HighlightsOperation
-  | ShadowsOperation;
+  | ShadowsOperation
+  | TemperatureOperation
+  | TintOperation;
 
 export function assertExhaustive(value: never): never {
   throw new Error(`Unhandled image operation: ${JSON.stringify(value)}`);
@@ -59,6 +67,10 @@ export function applyOperationToSize(size: Size, operation: ImageOperation): Siz
       return highlightsSize(size);
     case 'shadows':
       return shadowsSize(size);
+    case 'temperature':
+      return temperatureSize(size);
+    case 'tint':
+      return tintSize(size);
     default:
       return assertExhaustive(operation);
   }
@@ -101,6 +113,8 @@ export function isImageOperation(value: unknown): value is ImageOperation {
     case 'exposure':
     case 'highlights':
     case 'shadows':
+    case 'temperature':
+    case 'tint':
       return isFiniteNumber(candidate.value);
     default:
       return false;
@@ -108,14 +122,14 @@ export function isImageOperation(value: unknown): value is ImageOperation {
 }
 
 // Rotate/flip are pure canvas transforms applied to a full drawImage(source,
-// 0, 0) call. Crop, the colour adjustments, resize, exposure, highlights
-// and shadows are deliberately excluded: crop needs to control the
-// drawImage call itself (a cropping source-rect) rather than pre-apply a
-// transform, adjustments apply a canvas `filter` instead of a transform,
-// resize scales the destination rect of drawImage, and exposure/
-// highlights/shadows rewrite pixels directly (no canvas-native filter or
-// transform covers a luminance-dependent adjustment) — see
-// flattenOperations.ts.
+// 0, 0) call. Crop, the colour adjustments, resize, exposure, highlights,
+// shadows, temperature and tint are deliberately excluded: crop needs to
+// control the drawImage call itself (a cropping source-rect) rather than
+// pre-apply a transform, adjustments apply a canvas `filter` instead of a
+// transform, resize scales the destination rect of drawImage, and
+// exposure/highlights/shadows/temperature/tint rewrite pixels directly (no
+// canvas-native filter covers a per-channel or luminance-dependent
+// adjustment) — see flattenOperations.ts.
 export function applyGeometricTransform(
   context: CanvasRenderingContext2D,
   operation: RotateOperation | FlipOperation,

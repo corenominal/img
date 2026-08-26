@@ -35,6 +35,10 @@ describe('AdjustPanel', () => {
     expect(screen.getByRole('button', { name: 'Reset Highlights' })).toBeDisabled();
     expect(screen.getByRole('slider', { name: 'Shadows' })).toHaveValue('0');
     expect(screen.getByRole('button', { name: 'Reset Shadows' })).toBeDisabled();
+    expect(screen.getByRole('slider', { name: 'Temperature' })).toHaveValue('0');
+    expect(screen.getByRole('button', { name: 'Reset Temperature' })).toBeDisabled();
+    expect(screen.getByRole('slider', { name: 'Tint' })).toHaveValue('0');
+    expect(screen.getByRole('button', { name: 'Reset Tint' })).toBeDisabled();
     expect(screen.getByRole('slider', { name: 'Brightness' })).toHaveValue('0');
     expect(screen.getByRole('button', { name: 'Reset Brightness' })).toBeDisabled();
   });
@@ -82,6 +86,34 @@ describe('AdjustPanel', () => {
     ]);
     expect(useAdjustmentStore.getState().active).toEqual({});
     expect(screen.getByRole('slider', { name: 'Shadows' })).toHaveValue('35');
+  });
+
+  it('temperature behaves like the other pixel-based adjustments: commits one operation and holds position', () => {
+    useDocumentStore.getState().setDocument(fakeDocument());
+    render(<AdjustPanel />);
+
+    const slider = screen.getByRole('slider', { name: 'Temperature' });
+    fireEvent.change(slider, { target: { value: '-45' } });
+    fireEvent.pointerUp(slider);
+
+    expect(useDocumentStore.getState().document?.operations).toEqual([
+      { type: 'temperature', value: -45 },
+    ]);
+    expect(useAdjustmentStore.getState().active).toEqual({});
+    expect(screen.getByRole('slider', { name: 'Temperature' })).toHaveValue('-45');
+  });
+
+  it('tint behaves like the other pixel-based adjustments: commits one operation and holds position', () => {
+    useDocumentStore.getState().setDocument(fakeDocument());
+    render(<AdjustPanel />);
+
+    const slider = screen.getByRole('slider', { name: 'Tint' });
+    fireEvent.change(slider, { target: { value: '25' } });
+    fireEvent.pointerUp(slider);
+
+    expect(useDocumentStore.getState().document?.operations).toEqual([{ type: 'tint', value: 25 }]);
+    expect(useAdjustmentStore.getState().active).toEqual({});
+    expect(screen.getByRole('slider', { name: 'Tint' })).toHaveValue('25');
   });
 
   it('reflects an already-committed total on mount, not zero', () => {

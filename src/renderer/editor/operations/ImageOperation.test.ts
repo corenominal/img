@@ -73,6 +73,22 @@ describe('applyOperationToSize', () => {
       height: 100,
     });
   });
+
+  it('applies a temperature operation (no size change)', () => {
+    expect(
+      applyOperationToSize({ width: 200, height: 100 }, { type: 'temperature', value: -40 }),
+    ).toEqual({
+      width: 200,
+      height: 100,
+    });
+  });
+
+  it('applies a tint operation (no size change)', () => {
+    expect(applyOperationToSize({ width: 200, height: 100 }, { type: 'tint', value: 25 })).toEqual({
+      width: 200,
+      height: 100,
+    });
+  });
 });
 
 describe('applyGeometricTransform', () => {
@@ -109,6 +125,8 @@ describe('isImageOperation', () => {
     { type: 'exposure', value: 40 },
     { type: 'highlights', value: -30 },
     { type: 'shadows', value: 30 },
+    { type: 'temperature', value: -40 },
+    { type: 'tint', value: 25 },
   ])('accepts a valid $type operation', (operation) => {
     expect(isImageOperation(operation)).toBe(true);
   });
@@ -134,6 +152,10 @@ describe('isImageOperation', () => {
     { type: 'highlights' },
     { type: 'shadows', value: 'dark' },
     { type: 'shadows' },
+    { type: 'temperature', value: 'warm' },
+    { type: 'temperature' },
+    { type: 'tint', value: 'cool' },
+    { type: 'tint' },
   ])('rejects %j', (value) => {
     expect(isImageOperation(value)).toBe(false);
   });

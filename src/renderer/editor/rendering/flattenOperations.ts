@@ -8,18 +8,29 @@ import type { HighlightsOperation } from '../operations/HighlightsOperation';
 import { applyHighlights } from '../operations/HighlightsOperation';
 import type { ShadowsOperation } from '../operations/ShadowsOperation';
 import { applyShadows } from '../operations/ShadowsOperation';
+import type { TemperatureOperation } from '../operations/TemperatureOperation';
+import { applyTemperature } from '../operations/TemperatureOperation';
+import type { TintOperation } from '../operations/TintOperation';
+import { applyTint } from '../operations/TintOperation';
 import type { Size } from '../viewport/viewportTypes';
 
 export type RenderableSource = ImageBitmap | HTMLCanvasElement;
 
-// These three have no CSS-filter or transform equivalent (each needs a
-// per-pixel, luminance-dependent read/rewrite), so they share the same
-// "draw, then rewrite pixels in place" render step below.
-type PixelOperation = ExposureOperation | HighlightsOperation | ShadowsOperation;
+// None of these have a CSS-filter or transform equivalent — each needs a
+// per-pixel read/rewrite, whether luminance-dependent (exposure/
+// highlights/shadows) or a flat per-channel shift (temperature/tint) — so
+// they share the same "draw, then rewrite pixels in place" render step
+// below.
+type PixelOperation =
+  ExposureOperation | HighlightsOperation | ShadowsOperation | TemperatureOperation | TintOperation;
 
 function isPixelOperation(operation: ImageOperation): operation is PixelOperation {
   return (
-    operation.type === 'exposure' || operation.type === 'highlights' || operation.type === 'shadows'
+    operation.type === 'exposure' ||
+    operation.type === 'highlights' ||
+    operation.type === 'shadows' ||
+    operation.type === 'temperature' ||
+    operation.type === 'tint'
   );
 }
 
@@ -37,6 +48,12 @@ function applyPixelOperation(
       return;
     case 'shadows':
       applyShadows(context, size, operation);
+      return;
+    case 'temperature':
+      applyTemperature(context, size, operation);
+      return;
+    case 'tint':
+      applyTint(context, size, operation);
       return;
   }
 }

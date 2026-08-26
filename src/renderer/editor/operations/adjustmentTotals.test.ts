@@ -56,4 +56,22 @@ describe('getAdjustmentTotal', () => {
     ];
     expect(getAdjustmentTotal(operations, 'shadows')).toBe(20);
   });
+
+  it('sums temperature deltas too', () => {
+    const operations: ImageOperation[] = [
+      { type: 'temperature', value: -30 },
+      { type: 'shadows', value: 10 },
+      { type: 'temperature', value: 15 },
+    ];
+    expect(getAdjustmentTotal(operations, 'temperature')).toBe(-15);
+  });
+
+  it('sums tint deltas too', () => {
+    const operations: ImageOperation[] = [
+      { type: 'tint', value: -20 },
+      { type: 'temperature', value: 10 },
+      { type: 'tint', value: 45 },
+    ];
+    expect(getAdjustmentTotal(operations, 'tint')).toBe(25);
+  });
 });
