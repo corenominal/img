@@ -2,11 +2,44 @@ import type { ImageOperation } from '../operations/ImageOperation';
 import { applyGeometricTransform, applyOperationToSize } from '../operations/ImageOperation';
 import { applyAdjustmentFilter, isAdjustmentOperation } from '../operations/AdjustmentOperation';
 import { applyResizeScale } from '../operations/ResizeOperation';
+import type { ExposureOperation } from '../operations/ExposureOperation';
 import { applyExposure } from '../operations/ExposureOperation';
+import type { HighlightsOperation } from '../operations/HighlightsOperation';
 import { applyHighlights } from '../operations/HighlightsOperation';
+import type { ShadowsOperation } from '../operations/ShadowsOperation';
+import { applyShadows } from '../operations/ShadowsOperation';
 import type { Size } from '../viewport/viewportTypes';
 
 export type RenderableSource = ImageBitmap | HTMLCanvasElement;
+
+// These three have no CSS-filter or transform equivalent (each needs a
+// per-pixel, luminance-dependent read/rewrite), so they share the same
+// "draw, then rewrite pixels in place" render step below.
+type PixelOperation = ExposureOperation | HighlightsOperation | ShadowsOperation;
+
+function isPixelOperation(operation: ImageOperation): operation is PixelOperation {
+  return (
+    operation.type === 'exposure' || operation.type === 'highlights' || operation.type === 'shadows'
+  );
+}
+
+function applyPixelOperation(
+  context: CanvasRenderingContext2D,
+  size: Size,
+  operation: PixelOperation,
+): void {
+  switch (operation.type) {
+    case 'exposure':
+      applyExposure(context, size, operation);
+      return;
+    case 'highlights':
+      applyHighlights(context, size, operation);
+      return;
+    case 'shadows':
+      applyShadows(context, size, operation);
+      return;
+  }
+}
 
 function createCanvas(size: Size): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
@@ -65,12 +98,9 @@ export function flattenOperations(
     } else if (operation.type === 'resize') {
       applyResizeScale(context, operation);
       context.drawImage(current, 0, 0, nextSize.width, nextSize.height);
-    } else if (operation.type === 'exposure') {
+    } else if (isPixelOperation(operation)) {
       context.drawImage(current, 0, 0);
-      applyExposure(context, nextSize, operation);
-    } else if (operation.type === 'highlights') {
-      context.drawImage(current, 0, 0);
-      applyHighlights(context, nextSize, operation);
+      applyPixelOperation(context, nextSize, operation);
     } else {
       applyGeometricTransform(context, operation, currentSize);
       context.drawImage(current, 0, 0);

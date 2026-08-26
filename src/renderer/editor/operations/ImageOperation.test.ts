@@ -64,6 +64,15 @@ describe('applyOperationToSize', () => {
       height: 100,
     });
   });
+
+  it('applies a shadows operation (no size change)', () => {
+    expect(
+      applyOperationToSize({ width: 200, height: 100 }, { type: 'shadows', value: 30 }),
+    ).toEqual({
+      width: 200,
+      height: 100,
+    });
+  });
 });
 
 describe('applyGeometricTransform', () => {
@@ -99,6 +108,7 @@ describe('isImageOperation', () => {
     { type: 'resize', width: 100, height: 50, resampling: 'pixelated' },
     { type: 'exposure', value: 40 },
     { type: 'highlights', value: -30 },
+    { type: 'shadows', value: 30 },
   ])('accepts a valid $type operation', (operation) => {
     expect(isImageOperation(operation)).toBe(true);
   });
@@ -122,6 +132,8 @@ describe('isImageOperation', () => {
     { type: 'exposure' },
     { type: 'highlights', value: 'bright' },
     { type: 'highlights' },
+    { type: 'shadows', value: 'dark' },
+    { type: 'shadows' },
   ])('rejects %j', (value) => {
     expect(isImageOperation(value)).toBe(false);
   });

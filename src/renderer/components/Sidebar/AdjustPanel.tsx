@@ -10,6 +10,7 @@ import './AdjustPanel.css';
 const ADJUSTMENTS: { kind: AdjustmentSliderKind; label: string }[] = [
   { kind: 'exposure', label: 'Exposure' },
   { kind: 'highlights', label: 'Highlights' },
+  { kind: 'shadows', label: 'Shadows' },
   { kind: 'brightness', label: 'Brightness' },
   { kind: 'contrast', label: 'Contrast' },
   { kind: 'saturation', label: 'Saturation' },

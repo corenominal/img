@@ -33,6 +33,8 @@ describe('AdjustPanel', () => {
     expect(screen.getByRole('button', { name: 'Reset Exposure' })).toBeDisabled();
     expect(screen.getByRole('slider', { name: 'Highlights' })).toHaveValue('0');
     expect(screen.getByRole('button', { name: 'Reset Highlights' })).toBeDisabled();
+    expect(screen.getByRole('slider', { name: 'Shadows' })).toHaveValue('0');
+    expect(screen.getByRole('button', { name: 'Reset Shadows' })).toBeDisabled();
     expect(screen.getByRole('slider', { name: 'Brightness' })).toHaveValue('0');
     expect(screen.getByRole('button', { name: 'Reset Brightness' })).toBeDisabled();
   });
@@ -65,6 +67,21 @@ describe('AdjustPanel', () => {
     ]);
     expect(useAdjustmentStore.getState().active).toEqual({});
     expect(screen.getByRole('slider', { name: 'Highlights' })).toHaveValue('-25');
+  });
+
+  it('shadows behaves like the other pixel-based adjustments: commits one operation and holds position', () => {
+    useDocumentStore.getState().setDocument(fakeDocument());
+    render(<AdjustPanel />);
+
+    const slider = screen.getByRole('slider', { name: 'Shadows' });
+    fireEvent.change(slider, { target: { value: '35' } });
+    fireEvent.pointerUp(slider);
+
+    expect(useDocumentStore.getState().document?.operations).toEqual([
+      { type: 'shadows', value: 35 },
+    ]);
+    expect(useAdjustmentStore.getState().active).toEqual({});
+    expect(screen.getByRole('slider', { name: 'Shadows' })).toHaveValue('35');
   });
 
   it('reflects an already-committed total on mount, not zero', () => {

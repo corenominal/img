@@ -47,4 +47,13 @@ describe('getAdjustmentTotal', () => {
     ];
     expect(getAdjustmentTotal(operations, 'highlights')).toBe(-15);
   });
+
+  it('sums shadows deltas too', () => {
+    const operations: ImageOperation[] = [
+      { type: 'shadows', value: 25 },
+      { type: 'highlights', value: -10 },
+      { type: 'shadows', value: -5 },
+    ];
+    expect(getAdjustmentTotal(operations, 'shadows')).toBe(20);
+  });
 });
